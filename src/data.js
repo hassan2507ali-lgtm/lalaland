@@ -2,7 +2,7 @@ export const featuresData = [
   { 
     id: 1, 
     title: 'Scan Excel', 
-    desc: 'Cek kesesuaian baris & kolom data spreadsheet.', 
+    desc: 'baris & kolom data spreadsheet.', 
     icon: '📊', 
     category: 'Document',
     stat: 'Spreadsheet'
@@ -10,7 +10,7 @@ export const featuresData = [
   { 
     id: 2, 
     title: 'Scan Word', 
-    desc: 'Validasi format dokumen Word secara otomatis.', 
+    desc: 'Validasi format dokumen Word ', 
     icon: '📝', 
     category: 'Document',
     stat: 'Text Doc'
@@ -18,7 +18,7 @@ export const featuresData = [
   { 
     id: 3, 
     title: 'Scan Tulis Tangan', 
-    desc: 'Ekstrak teks dari foto atau gambar (OCR).', 
+    desc: 'OCR', 
     icon: '✍️', 
     category: 'Handwritten',
     stat: 'Image/OCR'
