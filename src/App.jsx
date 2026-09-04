@@ -1,38 +1,38 @@
 import { useState } from 'react';
-import mandiriLogo from './assets/mandiri.png'; // Mandiri logo image
-import { featuresData, filterOptions, historyData } from './data'; // Import data dari luar
-
+import mandiriLogo from './assets/mandiri.png'; // Pastikan path ini benar
+import { featuresData, filterOptions, historyData } from './data'; 
 import './App.css';
 
-// --- KOMPONEN 1: NAVBAR (sticky) with logo inside ---
+// --- KOMPONEN 1: NAVBAR ---
 const Navbar = ({ setView }) => (
   <nav className="navbar">
-    {/* Logo on the left, small size */}
-    <div className="logo" onClick={() => setView('dashboard')} style={{cursor: 'pointer'}}>
-      <img src={mandiriLogo} alt="Mandiri" style={{height: '32px'}} />
+    <div className="nav-content">
+      <div className="logo" onClick={() => setView('dashboard')}>
+        <img src={mandiriLogo} alt="Mandiri" />
+      </div>
+      <div className="nav-profile">
+        <span className="user-avatar">AD</span>
+        <span className="user-name">Admin User</span>
+      </div>
     </div>
-    {/* No additional menu items */}
   </nav>
 );
 
-// --- KOMPONEN 2: DASHBOARD (Corporate Style) ---
+// --- KOMPONEN 2: DASHBOARD ---
 const Dashboard = ({ setView, history }) => {
   const [activeFilter, setActiveFilter] = useState('All');
 
-  // Filtered features based on selected category
   const filteredFeatures = activeFilter === 'All'
     ? featuresData
     : featuresData.filter(item => item.category === activeFilter);
 
   return (
     <section className="dashboard">
-      {/* Hero /Intro */}
-      <header className="hero-section corporate-hero">
-        <h1>Digital Document Scanning</h1>
-        <p>Fast scan for Excel, Word & Handwritten files.</p>
+      <header className="hero-section">
+        <h1>Digital Document <span>Scanning</span></h1>
+        <p>Sistem Pemindaian Cepat untuk Dokumen Excel, Word & Tulisan Tangan.</p>
       </header>
 
-      {/* Filter Buttons */}
       <div className="filter-container">
         {filterOptions.map(filterName => (
           <button
@@ -45,7 +45,6 @@ const Dashboard = ({ setView, history }) => {
         ))}
       </div>
 
-      {/* Feature Cards */}
       <section className="grid-container">
         {filteredFeatures.map(feature => (
           <article
@@ -59,41 +58,49 @@ const Dashboard = ({ setView, history }) => {
             <div className="card-icon">{feature.icon}</div>
             <h3 className="card-title">{feature.title}</h3>
             <p className="card-desc">{feature.desc}</p>
+            <div className="card-action">Mulai Scan →</div>
           </article>
         ))}
       </section>
 
-      {/* Recent Scan History Table */}
       <section className="history-section">
-        <h2>Riwayat Pemindaian Terbaru</h2>
-        <table className="history-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tanggal</th>
-              <th>Jenis</th>
-              <th>File</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map(row => (
-              <tr key={row.id}>
-                <td>{row.id}</td>
-                <td>{row.date}</td>
-                <td>{row.type}</td>
-                <td>{row.filename}</td>
-                <td>{row.status}</td>
+        <div className="history-header">
+          <h2>Riwayat Pemindaian Terbaru</h2>
+        </div>
+        <div className="table-responsive">
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>ID Transaksi</th>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th>Nama File</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {history.map(row => (
+                <tr key={row.id}>
+                  <td className="fw-500">{row.id}</td>
+                  <td>{row.date}</td>
+                  <td><span className={`type-badge ${row.type.toLowerCase()}`}>{row.type}</span></td>
+                  <td>{row.filename}</td>
+                  <td>
+                    <span className={`status-badge ${row.status.toLowerCase()}`}>
+                      {row.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </section>
   );
 };
 
-// --- KOMPONEN 3: SCAN DOCUMENT (EXCEL/WORD) ---
+// --- KOMPONEN 3: SCAN DOCUMENT ---
 const ScanDocument = ({ setView, addHistory }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -106,17 +113,16 @@ const ScanDocument = ({ setView, addHistory }) => {
       const result = Math.random() > 0.5 ? 'match' : 'unmatch';
       setIsScanning(false);
       setScanResult(result);
-      // Record in history with actual file name and status
       if (addHistory) {
         addHistory(prev => {
           const newEntry = {
-            id: `TRX-${Date.now()}`,
+            id: `TRX-${Date.now().toString().slice(-6)}`,
             date: new Date().toLocaleDateString('en-GB'),
             type: selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.xls') ? 'Excel' : 'Word',
             filename: selectedFile.name,
             status: result === 'match' ? 'Match' : 'Unmatch',
           };
-          return [...prev, newEntry];
+          return [newEntry, ...prev];
         });
       }
     }, 2500);
@@ -124,19 +130,50 @@ const ScanDocument = ({ setView, addHistory }) => {
 
   return (
     <div className="scan-page">
-      <button className="back-btn" onClick={() => setView('dashboard')}>← Kembali ke Dashboard</button>
+      <button className="back-btn" onClick={() => setView('dashboard')}>
+        <span className="icon">←</span> Kembali ke Dashboard
+      </button>
       <div className="upload-container">
-        <h2>Upload Dokumen Excel / Word</h2>
+        <h2>Upload Dokumen (Excel / Word)</h2>
+        <p className="subtitle">Format yang didukung: .xls, .xlsx, .doc, .docx</p>
+        
         <div className="upload-box">
-          <input type="file" accept=".xlsx, .xls, .doc, .docx" onChange={(e) => setSelectedFile(e.target.files[0])} />
-          {selectedFile && <p className="file-name">File terpilih: {selectedFile.name}</p>}
+          <div className="upload-icon">📁</div>
+          <input type="file" id="file-upload" accept=".xlsx, .xls, .doc, .docx" onChange={(e) => setSelectedFile(e.target.files[0])} hidden />
+          <label htmlFor="file-upload" className="upload-label">
+            {selectedFile ? selectedFile.name : "Pilih File atau Tarik ke Sini"}
+          </label>
         </div>
-        <button className="action-btn" onClick={handleScan} disabled={isScanning || !selectedFile}>
-          {isScanning ? 'Menganalisis...' : 'Mulai Scan'}
+
+        <button className="action-btn primary-btn" onClick={handleScan} disabled={isScanning || !selectedFile}>
+          {isScanning ? 'Menganalisis...' : 'Mulai Scan Dokumen'}
         </button>
-        {isScanning && <div className="loading-state"><div className="spinner"></div><p>Membaca struktur...</p></div>}
-        {scanResult === 'match' && <div className="result-box match"><h3>✅ Match (Sesuai)</h3></div>}
-        {scanResult === 'unmatch' && <div className="result-box unmatch"><h3>❌ Unmatch (Tidak Sesuai)</h3></div>}
+
+        {isScanning && (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Membaca struktur dan data dokumen...</p>
+          </div>
+        )}
+
+        {scanResult === 'match' && (
+          <div className="result-box match">
+            <div className="result-icon">✅</div>
+            <div>
+              <h3>Dokumen Sesuai (Match)</h3>
+              <p>Data dalam dokumen telah divalidasi dan cocok dengan sistem.</p>
+            </div>
+          </div>
+        )}
+        {scanResult === 'unmatch' && (
+          <div className="result-box unmatch">
+            <div className="result-icon">❌</div>
+            <div>
+              <h3>Dokumen Tidak Sesuai (Unmatch)</h3>
+              <p>Ditemukan ketidakcocokan data dengan sistem. Silakan periksa kembali.</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -159,47 +196,65 @@ const ScanHandwritten = ({ setView, addHistory }) => {
 
   const handleScan = () => {
     setIsOcrScanning(true);
-    // Simulate OCR with a dummy result after a short delay
     setTimeout(() => {
-      const dummy = 'Dummy OCR result – extracted text placeholder.';
+      const dummy = 'Hasil ekstraksi OCR:\n\nNama: John Doe\nNo. Rekening: 123-456-789\nNominal: Rp 5.000.000\nKeterangan: Pembayaran Invoice #402';
       setOcrText(dummy);
       setIsOcrScanning(false);
-      // Record in history as a handwritten scan
       if (addHistory) {
         addHistory(prev => {
           const newEntry = {
-            id: `TRX-${Date.now()}`,
+            id: `TRX-${Date.now().toString().slice(-6)}`,
             date: new Date().toLocaleDateString('en-GB'),
             type: 'Handwritten',
             filename: ocrFileName || 'unknown.jpg',
             status: 'Extracted',
           };
-          return [...prev, newEntry];
+          return [newEntry, ...prev];
         });
       }
-    }, 2000);
+    }, 2500);
   };
 
   return (
     <div className="scan-page ocr-page">
-      <button className="back-btn" onClick={() => setView('dashboard')}>← Kembali ke Dashboard</button>
+      <button className="back-btn" onClick={() => setView('dashboard')}>
+        <span className="icon">←</span> Kembali ke Dashboard
+      </button>
       <div className="upload-container">
         <h2>Scan Tulisan Tangan (OCR)</h2>
+        <p className="subtitle">Unggah gambar dokumen tulisan.</p>
+        
         <div className="ocr-workspace">
           <div className="ocr-left">
             {!previewUrl ? (
-              <div className="upload-box"><input type="file" accept="image/*" onChange={handleImageUpload} /></div>
+              <div className="upload-box">
+                <div className="upload-icon">📸</div>
+                <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} hidden />
+                <label htmlFor="image-upload" className="upload-label">
+                  Pilih Gambar Dokumen
+                </label>
+              </div>
             ) : (
               <div className="image-preview-container">
                 <img src={previewUrl} alt="Preview" className="image-preview" />
                 {isOcrScanning && <div className="scanner-line"></div>}
               </div>
             )}
-            {previewUrl && <button className="action-btn" onClick={handleScan} disabled={isOcrScanning}>Run OCR</button>}
+            {previewUrl && (
+              <button className="action-btn primary-btn" onClick={handleScan} disabled={isOcrScanning}>
+                {isOcrScanning ? 'Mengekstraksi Teks...' : 'Jalankan OCR'}
+              </button>
+            )}
           </div>
           <div className="ocr-right">
-            <textarea className="ocr-result-text" value={ocrText} onChange={(e) => setOcrText(e.target.value)} disabled={isOcrScanning}></textarea>
-            {ocrFileName && <p className="file-name">File: {ocrFileName}</p>}
+            <textarea 
+              className="ocr-result-text" 
+              placeholder="Hasil teks ekstraksi akan muncul di sini..."
+              value={ocrText} 
+              onChange={(e) => setOcrText(e.target.value)} 
+              disabled={isOcrScanning}
+            ></textarea>
+            {ocrFileName && <p className="file-name-info">📄 {ocrFileName}</p>}
           </div>
         </div>
       </div>
@@ -207,19 +262,19 @@ const ScanHandwritten = ({ setView, addHistory }) => {
   );
 };
 
-// --- KOMPONEN UTAMA (Sangat Bersih) ---
+// --- KOMPONEN UTAMA ---
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-  // History state – start with static dummy data then grow with real scans
-  const [history, setHistory] = useState(historyData);
+  const [history, setHistory] = useState(historyData || []);
 
   return (
     <div className="app-wrapper">
       <Navbar setView={setCurrentView} />
-      
-      {currentView === 'dashboard' && <Dashboard setView={setCurrentView} history={history} />}
-      {currentView === 'scan-document' && <ScanDocument setView={setCurrentView} addHistory={setHistory} />}
-      {currentView === 'scan-handwritten' && <ScanHandwritten setView={setCurrentView} addHistory={setHistory} />}
+      <main className="main-content">
+        {currentView === 'dashboard' && <Dashboard setView={setCurrentView} history={history} />}
+        {currentView === 'scan-document' && <ScanDocument setView={setCurrentView} addHistory={setHistory} />}
+        {currentView === 'scan-handwritten' && <ScanHandwritten setView={setCurrentView} addHistory={setHistory} />}
+      </main>
     </div>
   );
 }

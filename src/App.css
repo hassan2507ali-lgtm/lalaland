@@ -1,291 +1,429 @@
-/* Mengatur font dan background dasar */
-/* Global wrapper with subtle diagonal gradient */
-/* Minimal light wrapper */
-/* Full‑white minimal wrapper */
-.app-wrapper {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #fff;
-  min-height: 100vh;
-  padding-bottom: 50px;
+/* --- ROOT VARIABLES --- */
+:root {
+  --primary: #003d79; /* Mandiri Blue */
+  --primary-light: #0056a8;
+  --accent: #f2a900; /* Gold */
+  --bg-color: #f4f7fa;
+  --surface: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --radius-md: 12px;
+  --radius-lg: 20px;
 }
 
-/* Navbar */
-/* Sticky blue header */
+/* --- GLOBAL & WRAPPER --- */
+.app-wrapper {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  color: var(--text-main);
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* --- NAVBAR --- */
 .navbar {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
+  z-index: 100;
+}
+
+.nav-content {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background-color: #0073e6; /* blue */
-  color: #fff;
-  z-index: 10;
+  padding: 16px 20px;
 }
 
-.nav-menu {
-  font-weight: 600;
+.logo {
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-/* Logo container – placed above navbar */
-/* Logo inside navbar – keep it compact */
+.logo:hover {
+  opacity: 0.8;
+}
+
 .logo img {
+  height: 36px;
   display: block;
 }
 
-/* Hero Section */
+.nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  background-color: var(--primary);
+  color: white;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--text-main);
+  font-size: 15px;
+}
+
+/* --- HERO SECTION --- */
 .hero-section {
   text-align: center;
-  padding: 70px 20px 45px;
-  margin-bottom: 30px; /* space before filter/buttons */
+  padding: 60px 20px 40px;
 }
 
 .hero-section h1 {
-  font-size: 36px;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.hero-section h1 span {
+  color: var(--primary);
 }
 
 .hero-section p {
   font-size: 18px;
-  color: #666;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* Corporate hero – darker background with accent */
-/* Fresh corporate hero – subtle gradient, cleaner font sizes */
-/* Fresh neutral hero – light background, minimal color */
-/* Fresh hero with faint pattern background */
-/* Simple clean hero */
-/* Simple white hero */
-.hero-section.corporate-hero {
-  background-color: #fff;
-  color: #222;
-  padding: 70px 20px 45px;
-}
-/* Subtle diagonal lines pattern */
-/* No decorative pattern – keep it clean */
-
-.hero-section.corporate-hero h1 {
-  color: #222;
-  font-size: 34px;
-  margin-bottom: 10px;
+/* --- FILTERS --- */
+.filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
 }
 
-.hero-section.corporate-hero p {
-  color: #555;
-  font-size: 16px;
+.filter-btn {
+  padding: 10px 24px;
+  border: 1px solid var(--border-light);
+  border-radius: 30px;
+  background-color: var(--surface);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
-/* History table */
-.history-section {
-  margin-top: 40px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  padding: 30px 20px;
+.filter-btn:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
 }
 
-.history-section h2 {
-  margin-top: 0;
-  font-size: 24px;
-  color: #333;
-  text-align: center;
+.filter-btn.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 61, 121, 0.2);
+}
+
+/* --- GRID CARDS --- */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 30px;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+  
+  /* Membuat isi card ke tengah */
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  text-align: center; 
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--primary-light);
+}
+
+.card-icon {
+  font-size: 48px;
   margin-bottom: 20px;
+  background: #f0f7ff;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: var(--text-main);
+}
+
+.card-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+  flex-grow: 1;
+}
+
+.card-action {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Teks action ke tengah */
+  gap: 8px;
+}
+
+/* --- HISTORY TABLE --- */
+.history-section {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 30px;
+  border: 1px solid var(--border-light);
+}
+
+.history-header h2 {
+  font-size: 22px;
+  margin: 0 0 20px;
+  color: var(--text-main);
+}
+
+.table-responsive {
+  overflow-x: auto;
 }
 
 .history-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 15px;
 }
 
 .history-table th,
 .history-table td {
-  padding: 12px 8px;
-  border: 1px solid #eaeaea;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
   text-align: left;
 }
 
 .history-table th {
-  background-color: #f0f4f8;
-  color: #222;
+  background-color: #f8fafc;
+  color: var(--text-muted);
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
-.history-table tr:nth-child(even) {
-  background-color: #fafafa;
+.history-table th:first-child { border-top-left-radius: 8px; }
+.history-table th:last-child { border-top-right-radius: 8px; }
+
+.history-table tr:last-child td { border-bottom: none; }
+
+.history-table tr:hover td {
+  background-color: #f8fafc;
 }
 
-/* Filter Buttons */
-.filter-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 25px;   /* distance from hero */
-  margin-bottom: 30px; /* distance to grid */
+.fw-500 {
+  font-weight: 600;
+  color: var(--text-main);
 }
 
-/* Modern pill buttons with gradient accent */
-/* Minimal pill filter button */
-/* Minimal flat filter button */
-.filter-btn {
-  padding: 6px 16px;
-  border: 1px solid #bbb;
-  border-radius: 4px;
-  background-color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  color: #555;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.filter-btn:hover {
-  background-color: #f0f0f0;
-}
-.filter-btn.active {
-  background-color: #333;
-  color: #fff;
-  border-color: #333;
+/* --- BADGES --- */
+.status-badge, .type-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
 }
 
-.filter-btn:hover {
-  background-color: #f0f0f0;
-}
+.status-badge.match { background: var(--success-bg); color: var(--success); }
+.status-badge.unmatch { background: var(--danger-bg); color: var(--danger); }
+.status-badge.extracted { background: var(--warning-bg); color: var(--warning); }
 
-.filter-btn.active {
-  background-color: #333;
-  color: white;
-  border-color: #333;
+.type-badge {
+  background: #f1f5f9;
+  color: #475569;
 }
+.type-badge.excel { background: #dcfce7; color: #166534; }
+.type-badge.word { background: #dbeafe; color: #1e40af; }
 
-/* Grid & Cards */
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Card with soft lift and subtle gradient border */
-/* Simple card */
-/* Plain card – no shadows */
-.card {
-  background: #fff;
-  border-radius: 4px;
-  padding: 16px;
-  cursor: pointer;
-  border: 1px solid #ddd;
-}
-
-.card:hover {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
-
-.card-icon {
-  font-size: 40px;
-  margin-bottom: 15px;
-}
-
-.card-title {
-  font-size: 20px;
-  margin: 0 0 10px 0;
-  color: #222;
-}
-
-.card-desc {
-  font-size: 15px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* --- Tampilan Halaman Scan --- */
+/* --- SCAN PAGES --- */
 .scan-page {
   max-width: 800px;
-  margin: 40px auto;
-  padding: 0 20px;
+  margin: 40px auto 0;
+}
+
+.scan-page.ocr-page {
+  max-width: 1000px;
 }
 
 .back-btn {
   background: none;
   border: none;
-  color: #666;
+  color: var(--text-muted);
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.back-btn:hover {
+  color: var(--primary);
 }
 
 .upload-container {
-  background-color: white;
+  background-color: var(--surface);
   padding: 40px;
-  border-radius: 12px;
-  border: 1px solid #eaeaea;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+}
+
+.upload-container h2 {
+  margin: 0 0 8px;
+  color: var(--text-main);
+  font-size: 24px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 30px;
+  font-size: 15px;
 }
 
 .upload-box {
-  margin: 30px 0;
-  padding: 40px;
-  border: 2px dashed #ccc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  background-color: #f8fafc;
+  padding: 50px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  margin-bottom: 30px;
+}
+
+.upload-box:hover {
+  border-color: var(--primary);
+  background-color: #f0f7ff;
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.upload-label {
+  display: inline-block;
+  background-color: white;
+  border: 1px solid var(--border-light);
+  padding: 10px 24px;
   border-radius: 8px;
-  background-color: #fafafa;
-}
-
-.file-name {
-  margin-top: 15px;
   font-weight: 600;
-  color: #333;
-}
-
-/* Primary CTA button with subtle gradient */
-/* Minimal primary button */
-/* Simple red CTA button */
-.action-btn {
-  background-color: #e5322d;
-  color: #fff;
-  border: none;
-  padding: 8px 20px;
-  font-size: 14px;
-  border-radius: 3px;
+  color: var(--primary);
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
 }
-.action-btn:hover:not(:disabled) {
-  background-color: #c4231b;
+
+.upload-label:hover {
+  border-color: var(--primary);
 }
-.action-btn:disabled {
-  opacity: 0.5;
+
+.action-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.primary-btn {
+  background-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 61, 121, 0.2);
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+.primary-btn:disabled {
+  background-color: #94a3b8;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
-.action-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.action-btn:hover:not(:disabled) {
-  background-color: #c92a26;
-}
-
-/* --- Animasi Loading & Hasil --- */
+/* --- STATES & RESULTS --- */
 .loading-state {
-  margin-top: 30px;
-  color: #666;
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-muted);
 }
 
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #e5322d;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid var(--primary);
   border-radius: 50%;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
+  margin: 0 auto 16px;
 }
 
 @keyframes spin {
@@ -295,50 +433,57 @@
 
 .result-box {
   margin-top: 30px;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 24px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
   text-align: left;
+}
+
+.result-icon {
+  font-size: 28px;
 }
 
 .result-box h3 {
-  margin-top: 0;
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.result-box p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .match {
-  background-color: #e6f9ed;
-  border: 1px solid #a3e4bf;
-  color: #1a7b44;
+  background-color: var(--success-bg);
+  border: 1px solid #a7f3d0;
+  color: #065f46;
 }
 
 .unmatch {
-  background-color: #fde8e8;
-  border: 1px solid #f9a8a8;
-  color: #9b1c1c;
+  background-color: var(--danger-bg);
+  border: 1px solid #fecaca;
+  color: #991b1b;
 }
 
-/* --- Halaman OCR (Tulisan Tangan) --- */
+/* --- OCR WORKSPACE --- */
 .ocr-workspace {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 30px;
-  margin-top: 30px;
-  text-align: left;
-}
-
-.ocr-left, .ocr-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 
 .image-preview-container {
   position: relative;
   width: 100%;
-  height: 300px;
-  border-radius: 8px;
+  height: 350px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 2px solid #eaeaea;
-  background-color: #f9f9f9;
+  border: 1px solid var(--border-light);
+  background-color: #1e293b; 
+  margin-bottom: 20px;
 }
 
 .image-preview {
@@ -347,16 +492,15 @@
   object-fit: contain;
 }
 
-/* Animasi Garis Scanner */
 .scanner-line {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
-  background-color: #e5322d;
-  box-shadow: 0 0 10px #e5322d, 0 0 20px #e5322d;
-  animation: scan-animation 2s linear infinite;
+  height: 3px;
+  background-color: #38bdf8;
+  box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8;
+  animation: scan-animation 2s ease-in-out infinite;
   z-index: 10;
 }
 
@@ -369,25 +513,44 @@
 
 .ocr-result-text {
   width: 100%;
-  flex-grow: 1;
-  min-height: 250px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  line-height: 1.5;
-  resize: vertical;
-  font-family: inherit;
+  height: 100%;
+  min-height: 350px;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  line-height: 1.6;
+  resize: none;
+  font-family: 'Consolas', monospace;
+  background-color: #f8fafc;
+  color: var(--text-main);
+  box-sizing: border-box;
 }
 
 .ocr-result-text:focus {
   outline: none;
-  border-color: #e5322d;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 61, 121, 0.1);
 }
 
-/* Responsif untuk layar kecil (HP) */
+.file-name-info {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .ocr-workspace {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-section h1 {
+    font-size: 32px;
+  }
+  
+  .filter-container {
+    flex-wrap: wrap;
   }
 }
