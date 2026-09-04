@@ -1,0 +1,393 @@
+/* Mengatur font dan background dasar */
+/* Global wrapper with subtle diagonal gradient */
+/* Minimal light wrapper */
+/* Full‑white minimal wrapper */
+.app-wrapper {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+/* Navbar */
+/* Sticky blue header */
+.navbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #0073e6; /* blue */
+  color: #fff;
+  z-index: 10;
+}
+
+.nav-menu {
+  font-weight: 600;
+}
+
+/* Logo container – placed above navbar */
+/* Logo inside navbar – keep it compact */
+.logo img {
+  display: block;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  padding: 70px 20px 45px;
+  margin-bottom: 30px; /* space before filter/buttons */
+}
+
+.hero-section h1 {
+  font-size: 36px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.hero-section p {
+  font-size: 18px;
+  color: #666;
+}
+
+/* Corporate hero – darker background with accent */
+/* Fresh corporate hero – subtle gradient, cleaner font sizes */
+/* Fresh neutral hero – light background, minimal color */
+/* Fresh hero with faint pattern background */
+/* Simple clean hero */
+/* Simple white hero */
+.hero-section.corporate-hero {
+  background-color: #fff;
+  color: #222;
+  padding: 70px 20px 45px;
+}
+/* Subtle diagonal lines pattern */
+/* No decorative pattern – keep it clean */
+
+.hero-section.corporate-hero h1 {
+  color: #222;
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.hero-section.corporate-hero p {
+  color: #555;
+  font-size: 16px;
+}
+
+/* History table */
+.history-section {
+  margin-top: 40px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 30px 20px;
+}
+
+.history-section h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.history-table th,
+.history-table td {
+  padding: 12px 8px;
+  border: 1px solid #eaeaea;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #f0f4f8;
+  color: #222;
+  font-weight: 600;
+}
+
+.history-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Filter Buttons */
+.filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;   /* distance from hero */
+  margin-bottom: 30px; /* distance to grid */
+}
+
+/* Modern pill buttons with gradient accent */
+/* Minimal pill filter button */
+/* Minimal flat filter button */
+.filter-btn {
+  padding: 6px 16px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.filter-btn:hover {
+  background-color: #f0f0f0;
+}
+.filter-btn.active {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.filter-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-btn.active {
+  background-color: #333;
+  color: white;
+  border-color: #333;
+}
+
+/* Grid & Cards */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Card with soft lift and subtle gradient border */
+/* Simple card */
+/* Plain card – no shadows */
+.card {
+  background: #fff;
+  border-radius: 4px;
+  padding: 16px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.card-title {
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  color: #222;
+}
+
+.card-desc {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* --- Tampilan Halaman Scan --- */
+.scan-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.upload-container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.upload-box {
+  margin: 30px 0;
+  padding: 40px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.file-name {
+  margin-top: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Primary CTA button with subtle gradient */
+/* Minimal primary button */
+/* Simple red CTA button */
+.action-btn {
+  background-color: #e5322d;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.action-btn:hover:not(:disabled) {
+  background-color: #c4231b;
+}
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: #c92a26;
+}
+
+/* --- Animasi Loading & Hasil --- */
+.loading-state {
+  margin-top: 30px;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #e5322d;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.result-box {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.result-box h3 {
+  margin-top: 0;
+}
+
+.match {
+  background-color: #e6f9ed;
+  border: 1px solid #a3e4bf;
+  color: #1a7b44;
+}
+
+.unmatch {
+  background-color: #fde8e8;
+  border: 1px solid #f9a8a8;
+  color: #9b1c1c;
+}
+
+/* --- Halaman OCR (Tulisan Tangan) --- */
+.ocr-workspace {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+  text-align: left;
+}
+
+.ocr-left, .ocr-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #eaeaea;
+  background-color: #f9f9f9;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Animasi Garis Scanner */
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #e5322d;
+  box-shadow: 0 0 10px #e5322d, 0 0 20px #e5322d;
+  animation: scan-animation 2s linear infinite;
+  z-index: 10;
+}
+
+@keyframes scan-animation {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.ocr-result-text {
+  width: 100%;
+  flex-grow: 1;
+  min-height: 250px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.ocr-result-text:focus {
+  outline: none;
+  border-color: #e5322d;
+}
+
+/* Responsif untuk layar kecil (HP) */
+@media (max-width: 768px) {
+  .ocr-workspace {
+    flex-direction: column;
+  }
+}
