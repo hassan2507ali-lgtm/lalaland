@@ -293,7 +293,7 @@ const ScanHandwritten = ({ setView, addHistory }) => {
   const handleScan = () => {
     setIsOcrScanning(true);
     setScanDone(false);
-    setOcrText(">> [SYSTEM] Memulai inisialisasi AI Core...\n");
+    setOcrText(">> [SYSTEM] Memulai inisialisasi OCR...\n");
 
     setTimeout(() => setOcrText(prev => prev + `>> [INFO] Memproses ${selectedFiles.length} dokumen secara paralel...\n`), 600);
     setTimeout(() => setOcrText(prev => prev + ">> [PROCESS] Melakukan ekstraksi & validasi struktur...\n"), 1400);
