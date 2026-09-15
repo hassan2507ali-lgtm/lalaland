@@ -1,212 +1,226 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import mandiriLogo from './assets/mandiri.png';
 
 // ==========================================
-// 1. GAYA DESAIN (CSS IN-JS)
+// 1. GAYA DESAIN (CSS IN-JS RESPONSIF)
 // ==========================================
 const appStyles = `
+  *, *::before, *::after { box-sizing: border-box; }
+
   :root {
-    --primary: #003d79; 
-    --primary-light: #0056a8;
-    --bg-color: #f4f7fa;
-    --surface: #ffffff;
-    --text-main: #1e293b;
+    --primary: #0056a8; 
+    --primary-light: #0077c8; 
+    --bg-color: #f1f5f9;
+    --surface: #ffffff; 
+    --text-main: #1e293b; 
     --text-muted: #64748b;
-    --border-light: #e2e8f0;
-    --success: #10b981;
-    --success-bg: #d1fae5;
+    --border-light: #e2e8f0; 
+    --success: #10b981; 
     --danger: #ef4444;
-    --danger-bg: #fee2e2;
     --warning: #f59e0b;
-    --warning-bg: #fef3c7;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05); 
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
     --radius-md: 12px;
-    --radius-lg: 20px;
   }
-
-  body { margin: 0; font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-main); }
   
-  .app-wrapper { min-height: 100vh; }
-  .main-content { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
-
-  /* Navbar & Dropdown */
-  .navbar { background: var(--surface); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
-  .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
-  .logo { cursor: pointer; }
+  body { 
+    margin: 0; 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    overflow-x: hidden; 
+  }
+  
+  .app-wrapper { min-height: 100vh; display: flex; flex-direction: column; width: 100vw; overflow-x: hidden; }
+  
+  /* Navbar & Dropdown Sample Files */
+  .navbar { background: var(--surface); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); width: 100%; }
+  .nav-content { max-width: 1400px; width: 100%; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; }
   .nav-profile-container { position: relative; }
-  
-  .nav-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; }
-  .nav-profile:hover { background: #f1f5f9; }
-  .user-avatar { background: var(--primary); color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; font-size: 14px; }
+  .nav-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: 0.2s; user-select: none; }
+  .nav-profile:hover { background: #f8fafc; }
+  .user-avatar { background: var(--primary); color: white; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; font-size: 13px; }
   .user-name { font-weight: 600; font-size: 14px; }
   
-  .profile-dropdown { position: absolute; top: 110%; right: 0; background: white; border: 1px solid var(--border-light); border-radius: 10px; box-shadow: var(--shadow-lg); width: 260px; z-index: 200; overflow: hidden; animation: fadeIn 0.2s ease-out; }
-  .dropdown-header { padding: 12px 16px; background: #f8fafc; font-size: 12px; font-weight: bold; color: var(--text-muted); border-bottom: 1px solid var(--border-light); text-transform: uppercase; letter-spacing: 0.5px; }
-  .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-main); text-decoration: none; font-size: 13px; transition: background 0.2s; border-bottom: 1px solid #f1f5f9; }
-  .dropdown-item:last-child { border-bottom: none; }
-  .dropdown-item:hover { background: #f0f7ff; color: var(--primary); font-weight: 500; }
-  .dropdown-icon { font-size: 16px; }
+  /* Dropdown Menu untuk Download Sample */
+  .profile-dropdown { position: absolute; top: 110%; right: 0; background: white; border: 1px solid var(--border-light); border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 260px; z-index: 200; overflow: hidden; }
+  .dropdown-header { padding: 12px 16px; background: #f8fafc; font-size: 12px; font-weight: bold; color: var(--text-muted); border-bottom: 1px solid var(--border-light); }
+  .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--text-main); text-decoration: none; font-size: 13px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+  .dropdown-item:hover { background: #f0f7ff; color: var(--primary); }
 
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  /* Main Container */
+  .main-content { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px 16px; flex: 1; }
 
-  /* Hero */
-  .hero-section { text-align: center; padding: 60px 20px 40px; }
-  .hero-section h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; }
+  /* Dashboard & History */
+  .hero-section { text-align: center; padding: 10px 10px 30px; }
+  .hero-section h1 { font-size: clamp(32px, 5vw, 44px); font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
   .hero-section h1 span { color: var(--primary); }
-  .hero-section p { font-size: 18px; color: var(--text-muted); }
+  .hero-section p { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+  .center-card-container { display: flex; justify-content: center; margin-bottom: 30px; }
+  .card { background: var(--surface); border-radius: 16px; padding: 30px 20px; cursor: pointer; border: 1px solid var(--border-light); text-align: center; max-width: 400px; width: 100%; box-shadow: var(--shadow-sm); transition: 0.3s; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+  .card-icon { font-size: 42px; margin: 0 auto 16px; background: #f0f7ff; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 18px; }
+  .card-title { font-size: 20px; font-weight: 700; margin: 0 0 8px; }
+  .card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
 
-  /* Center Card for Single Feature */
-  .center-card-container { display: flex; justify-content: center; margin-bottom: 60px; }
-  .card { background: var(--surface); border-radius: var(--radius-md); padding: 40px; cursor: pointer; border: 1px solid var(--border-light); display: flex; flex-direction: column; align-items: center; text-align: center; transition: 0.3s; max-width: 450px; width: 100%; box-shadow: var(--shadow-sm); }
-  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--primary-light); }
-  .card-icon { font-size: 56px; margin-bottom: 20px; background: #f0f7ff; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
-  .card-title { font-size: 24px; margin: 0 0 12px; }
-  .card-desc { font-size: 16px; color: var(--text-muted); flex-grow: 1; }
-  .card-action { font-weight: 600; color: var(--primary); margin-top: 24px; font-size: 16px; }
-
-  /* Table */
-  .history-section { background: var(--surface); border-radius: var(--radius-lg); padding: 30px; border: 1px solid var(--border-light); box-shadow: var(--shadow-md); }
-  .table-responsive { overflow-x: auto; }
-  .history-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
-  .history-table th, .history-table td { padding: 16px; border-bottom: 1px solid var(--border-light); text-align: left; }
-  .history-table th { background: #f8fafc; color: var(--text-muted); font-size: 13px; text-transform: uppercase; }
-  .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-  .status-badge.extracted { background: var(--warning-bg); color: var(--warning); }
-  .type-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #f1f5f9; color: #475569; }
-
-  /* Scan Pages */
-  .scan-page { max-width: 1000px; margin: 40px auto 0; }
-  .back-btn { background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; margin-bottom: 24px; padding: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-  .upload-container { background: var(--surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-md); }
+  /* History Table Responsif */
+  .history-section { max-width: 1000px; width: 100%; margin: 0 auto; background: var(--surface); border-radius: 16px; border: 1px solid var(--border-light); padding: 20px; box-shadow: var(--shadow-sm); overflow-x: auto; }
+  .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+  .history-header h3 { margin: 0; font-size: 17px; color: var(--text-main); }
   
-  /* Buttons */
-  .action-btn { width: 100%; padding: 16px; font-size: 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.3s; margin-top: 10px; }
-  .primary-btn { background: var(--primary); color: white; }
-  .primary-btn:disabled { background: #94a3b8; cursor: not-allowed; }
-  .success-btn { background: var(--success); color: white; }
+  .table-responsive-wrapper { width: 100%; overflow-x: auto; }
+  .history-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
+  .history-table th { padding: 12px; font-size: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .history-table td { padding: 14px 12px; font-size: 13.5px; color: var(--text-main); border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tbody tr { cursor: pointer; transition: 0.2s; }
+  .history-table tbody tr:hover { background: #f0f7ff; }
 
-  /* Dynamic Layout (OCR) */
-  .ocr-workspace-horizontal { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-  .ocr-workspace-vertical { display: flex; flex-direction: column; gap: 30px; }
+  .badge { display: inline-block; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; text-align: center; }
+  .badge.success { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+  .badge.danger { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+  .badge.warning { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+  .file-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .file-tag { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 6px; border-radius: 4px; font-size: 11px; color: #475569; font-family: monospace; }
+
+  /* Workspace Layout */
+  .workspace-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%; flex-wrap: wrap; gap: 12px; }
+  .workspace-title { font-size: 22px; font-weight: 700; margin: 0; }
+  .back-btn { background: white; border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 8px; color: var(--text-main); font-weight: 600; cursor: pointer; font-size: 13.5px; transition: 0.2s; box-shadow: var(--shadow-sm); }
+  .back-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+  .workspace-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start; width: 100%; }
   
-  /* Background Putih & Teks Hitam untuk Hasil Ekstraksi */
-  .ocr-result-text { width: 100%; min-height: 250px; padding: 20px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: monospace; background: #ffffff; color: #000000; resize: vertical; box-sizing: border-box; font-size: 14px; line-height: 1.6; }
-
-  /* Multi-upload Preview */
-  .multi-preview-container { border: 1px solid var(--border-light); background: #f8fafc; border-radius: var(--radius-md); margin-bottom: 20px; display: flex; flex-direction: column; }
-  .preview-header { display: flex; justify-content: space-between; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 14px; }
-  .add-more-label { color: var(--primary); cursor: pointer; }
-  .preview-grid { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; max-height: 350px; overflow-y: auto; }
-  .preview-item { position: relative; width: 120px; text-align: center; }
-  .clickable-image { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-light); cursor: zoom-in; transition: transform 0.2s; }
-  .clickable-image:hover { transform: scale(1.05); }
-  .remove-file-btn { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; z-index: 10; font-weight: bold; }
-  .preview-name { font-size: 11px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
-
-  /* Empty Upload Box */
-  .upload-box { border: 2px dashed #cbd5e1; border-radius: var(--radius-md); background: #f8fafc; padding: 50px 20px; text-align: center; margin-bottom: 30px; cursor: pointer; }
-  .upload-label { background: white; border: 1px solid var(--border-light); padding: 10px 24px; border-radius: 8px; font-weight: 600; color: var(--primary); cursor: pointer; display: inline-block; }
-
-  /* Modal Pop-up */
-  .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-  .image-modal-content { position: relative; max-width: 90%; max-height: 90vh; }
-  .image-modal-content img { max-width: 100%; max-height: 85vh; border-radius: 8px; }
-  .close-modal-btn { position: absolute; top: -40px; right: 0; background: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-
-  @media (max-width: 768px) {
-    .ocr-workspace-horizontal { grid-template-columns: 1fr; }
-    .hero-section h1 { font-size: 32px; }
-    .nav-profile .user-name { display: none; }
+  @media (max-width: 960px) {
+    .workspace-grid { grid-template-columns: 1fr; }
+    .control-panel { position: static !important; width: 100%; }
+    .log-panel { height: 500px !important; width: 100%; }
   }
+  
+  /* Left Panel: Controls */
+  .control-panel { background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; }
+  .upload-box { border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; padding: 30px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+  .upload-box:hover { border-color: var(--primary); background: #f0f7ff; }
+  .upload-label { background: var(--surface); border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 8px; font-weight: 600; color: var(--primary); cursor: pointer; display: inline-block; box-shadow: var(--shadow-sm); font-size: 14px; }
+  
+  .preview-section { display: flex; flex-direction: column; gap: 10px; }
+  .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+  .preview-item { position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-light); background: #f8fafc; }
+  .clickable-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.2s; }
+  .clickable-image:hover { opacity: 0.8; transform: scale(1.05); }
+  .pdf-preview-box { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; font-size: 14px; font-weight: 800; color: var(--danger); }
+  .remove-file-btn { position: absolute; top: 3px; right: 3px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; z-index: 10; font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+  .add-more-box { width: 100%; aspect-ratio: 1; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); font-size: 11px; font-weight: bold; background: #f8fafc; transition: 0.2s; }
+  .add-more-box:hover { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
+
+  /* Right Panel: Clean Log Panel */
+  .log-panel { background: var(--surface); border-radius: 12px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; height: calc(100vh - 120px); min-height: 480px; overflow: hidden; width: 100%; }
+  .log-header { padding: 14px 20px; border-bottom: 1px solid var(--border-light); background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .log-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+  
+  .ocr-result-text { 
+    flex: 1; padding: 20px; font-family: 'Consolas', 'Menlo', 'Monaco', monospace; 
+    background: #ffffff; color: var(--text-main); font-size: 13px; line-height: 1.6; 
+    overflow-y: auto; overflow-x: hidden; 
+    white-space: pre-wrap; word-break: break-word; 
+  }
+  
+  .ocr-result-text::-webkit-scrollbar { width: 6px; }
+  .ocr-result-text::-webkit-scrollbar-track { background: #f1f5f9; }
+  .ocr-result-text::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .ocr-result-text::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* Buttons */
+  .action-btn { width: 100%; padding: 12px; font-size: 14.5px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  .primary-btn { background: var(--primary); color: white; }
+  .primary-btn:hover:not(:disabled) { background: var(--primary-light); }
+  .primary-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+  
+  .export-btn { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+  .export-btn:hover { background: #059669; }
+
+  /* Modals */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(3px); padding: 16px; }
+  .modal-content { position: relative; max-width: 95%; max-height: 90vh; }
+  .modal-content img { max-width: 100%; max-height: 85vh; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+  .close-modal-btn { position: absolute; top: -14px; right: -14px; background: var(--danger); color: white; border: 2px solid white; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); transition: 0.2s; }
+  .close-modal-btn:hover { transform: scale(1.1); }
+
+  /* Report Modal Popup */
+  .report-modal { background: var(--surface); padding: 24px; border-radius: 16px; width: 650px; max-width: 100%; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
+  .report-modal-header { border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 12px; }
+  .report-modal-header h2 { margin: 0 0 6px 0; font-size: 18px; color: var(--text-main); }
+  .report-modal-body { overflow-y: auto; flex: 1; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid var(--border-light); }
+  .report-modal-text { font-family: 'Consolas', monospace; font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; color: var(--text-main); margin: 0; }
 `;
 
 // ==========================================
-// 2. DATA DUMMY (HANYA AGUSTINO)
+// 2. DATA DUMMY (FALLBACK LOKAL)
 // ==========================================
-const historyData = [
-  { id: 'TRX-001', date: new Date().toLocaleDateString('en-GB'), type: 'Handwritten', filename: 'form_agustino.jpeg', status: 'Extracted' },
-  { id: 'TRX-002', date: new Date().toLocaleDateString('en-GB'), type: 'Handwritten', filename: 'ktp_agustino.jpeg', status: 'Extracted' },
-];
-
 const ocrDummyDatabase = [
   {
-    aliases: ['form_agustino'], 
-    text: `=== HASIL EKSTRAKSI FORMULIR KOPRA MANDIRI ===\n[DATA PERUSAHAAN]\nNama Perusahaan: PT. Srijati Cahaya Kencana\nAlamat: Kencana Sari Timur 3 Blok E-15 RT. 005 RW. 006, Dukuh Pakis Gunung Sari Surabaya 60224\nJenis Badan Usaha: PT\nNPWP: 1000000005375577\nNomor CIF: 19013165253\n\n[DATA PEJABAT BERWENANG]\nNama: Agustino Sufa Bubun\nNIK: 3578261703920003\nJabatan: Direktur\n\n[REGISTRASI REKENING]\n1. 1410099008872 (Inquiry, Debet, Kredit)\n2. 1410099009728 (Inquiry, Debet, Kredit)`
+    aliases: ['form_agustino', 'form4'], 
+    text: `[DOKUMEN: FORMULIR APLIKASI]\nNama Lengkap : AGUSTINO SUFA BUBUN\nNama Alias : null\nTempat/Tgl Lahir : DILI, 17-03-1992\nNama Gadis Ibu Kandung : null\nJenis Kelamin : LAKI-LAKI\nJenis Identitas Utama : KTP\nNomor Identitas : 3578261703920003\nAlamat Sesuai ID : TAMAN PUSPARAYA A7/21A\nAgama : KATHOLIK\nStatus Pekerjaan : KARYAWAN SWASTA\nStatus Perkawinan : KAWIN\nPendidikan Terakhir : S1\nKewarganegaraan : WNI\nPekerjaan Sekarang : KARYAWAN SWASTA\nNama Perusahaan : PT. SRIJATI CAHAYA KENCANA\nBidang Usaha : null\nSumber Pendapatan : PENDAPATAN TETAP\nNPWP Tambahan : 1000000005375577\nAlamat Tinggal Sekarang : null\nEmail : null\nJenis Rekening : TABUNGAN MANDIRI\nTujuan Pembukaan Rekening : TRANSAKSI PRIBADI\nTujuan Penggunaan Dana : null`
   },
   {
     aliases: ['ktp_agustino'], 
-    text: `PROVINSI JAWA TIMUR\nKOTA SURABAYA\nNIK: 3578261703920003\nNama: AGUSTINO SUFA BUBUN\nTempat/Tgl Lahir: DILI, 17-03-1992\nJenis kelamin: LAKI-LAKI\nAlamat: TAMAN PUSPARAYA A7/21A\nAgama: KATHOLIK\nPekerjaan: KARYAWAN SWASTA\nBerlaku Hingga: SEUMUR HIDUP`
+    text: `[DOKUMEN: KTP]\nNIK : 3578261703920003\nNama : Agustino Sufa Bubun\nTempat/Tgl Lahir : DILI, 17-03-1992\nJenis Kelamin : LAKI-LAKI\nAlamat : TAMAN PUSPARAYA A7/21A\nRT/RW : 007/008\nKel/Desa : PEGADUNGAN\nKecamatan : KALIDERES\nAgama : KATHOLIK\nStatus Perkawinan : KAWIN\nPekerjaan : KARYAWAN SWASTA`
   },
   {
     aliases: ['npwp_agustino'], 
-    text: `KARTU NPWP - DIREKTORAT JENDERAL PAJAK\nNPWP: 1000 0000 0537 5577\nNama: SRIJATI CAHAYA KENCANA\nAlamat: KOTA SURABAYA, JAWA TIMUR\nTanggal Terdaftar: 04/09/2025`
+    text: `[DOKUMEN: NPWP]\nNo NPWP : 1000 0000 0537 5577\nNama : Agustino Sufa Bubun\nAlamat : KOTA SURABAYA, JAWA TIMUR`
   }
 ];
+
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result.split(',')[1]);
+  reader.onerror = error => reject(error);
+});
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ==========================================
 // 3. KOMPONEN UI
 // ==========================================
-
 const Navbar = ({ setView }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
   const sampleFiles = [
-    'form_agustino.jpeg',
-    'form.jpeg',
-    'form3.jpeg',
-    'form4.jpeg',
-    'ktp_agustino.jpeg',
-    'npwp_agustino.jpeg'
+    { name: 'form_agustino.jpeg', type: 'image' },
+    { name: 'ktp_agustino.jpeg', type: 'image' },
+    { name: 'npwp_agustino.jpeg', type: 'image' },
+    { name: 'MIRA_SETIAWAN.pdf', type: 'pdf' }
   ];
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <nav className="navbar">
       <div className="nav-content">
-        <div className="logo" onClick={() => setView('dashboard')}>
-          <img 
-            src={mandiriLogo} 
-            alt="Logo Mandiri" 
-            style={{ height: '36px', objectFit: 'contain', display: 'block' }} 
-          />
+        <div onClick={() => setView('dashboard')} style={{cursor: 'pointer'}}>
+          <img src={mandiriLogo} alt="Logo Mandiri" style={{ height: '28px' }} />
         </div>
         
-        <div className="nav-profile-container" ref={dropdownRef}>
+        <div className="nav-profile-container">
           <div className="nav-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
             <span className="user-avatar">AM</span>
             <span className="user-name">Admin Mandiri</span>
           </div>
-
+          
           {dropdownOpen && (
             <div className="profile-dropdown">
-              <div className="dropdown-header">📥 File Sample (Uji Coba)</div>
-              
-              {sampleFiles.map((fileName, index) => {
-                const isMarked = fileName.includes('agustino');
-                const icon = isMarked ? '🟢' : '⚪';
-                
-                return (
-                  <a key={index} href={`/${fileName}`} download className="dropdown-item">
-                    <span className="dropdown-icon">{icon}</span> {fileName}
-                  </a>
-                );
-              })}
-              
-              <div style={{padding: '10px 16px', background: '#fef3c7', fontSize: '11px', color: '#92400e', marginTop: '4px', borderTop: '1px solid #fde68a'}}>
-                *Ket: 🟢 File valid (Marking) | ⚪ File dummy
-              </div>
+              <div className="dropdown-header">📥 Download Berkas Uji Coba</div>
+              {sampleFiles.map((file, i) => (
+                <a 
+                  key={i} 
+                  href={`/${file.name}`} 
+                  download={file.name} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="dropdown-item"
+                >
+                  <span>{file.type === 'pdf' ? '📄' : '🟢'}</span> {file.name}
+                </a>
+              ))}
             </div>
           )}
         </div>
@@ -215,215 +229,423 @@ const Navbar = ({ setView }) => {
   );
 };
 
-const Dashboard = ({ setView, history }) => {
+const Dashboard = ({ setView, scanHistory }) => {
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
   return (
     <section className="dashboard">
       <header className="hero-section">
-        <h1>Digital Document <span>Scanning</span></h1>
-        <p>Sistem Pemindaian Formulir berbasis OCR.</p>
+        <h1>Enterprise KYC <span>Engine</span></h1>
+        <p>Sistem Validasi Dokumen & Anti-Fraud Berbasis Cloud AI.</p>
       </header>
-
+      
       <div className="center-card-container">
-        <article className="card" onClick={() => setView('scan-handwritten')}>
-          <div className="card-icon">📝</div>
-          <h3 className="card-title">Scan Dokumen & Form (OCR)</h3>
-          <p className="card-desc">Ekstraksi gambar menjadi teks terstruktur menggunakan OCR Batch.Multi-Upload.</p>
-          <div className="card-action">Mulai Scan →</div>
+        <article className="card" onClick={() => setView('scan')}>
+          <div className="card-icon">⚡</div>
+          <h3 className="card-title">Initiate Workspace</h3>
+          <p className="card-desc">Buka konsol untuk memproses dokumen KYC nasabah secara terpadu.</p>
+          <div style={{ marginTop: '16px', color: 'var(--primary)', fontWeight: 'bold' }}>Akses Konsol &rarr;</div>
         </article>
       </div>
 
-      <section className="history-section">
-        <h2>Riwayat Pemindaian Terbaru</h2>
-        <div className="table-responsive">
-          <table className="history-table">
-            <thead>
-              <tr><th>ID Transaksi</th><th>Tanggal</th><th>Jenis</th><th>Nama File</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              {history.map((row, index) => (
-                <tr key={index}>
-                  <td style={{fontWeight: 600}}>{row.id}</td>
-                  <td>{row.date}</td>
-                  <td><span className={`type-badge`}>{row.type}</span></td>
-                  <td>{row.filename}</td>
-                  <td><span className={`status-badge ${row.status.toLowerCase()}`}>{row.status}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* HISTORY SECTION */}
+      <div className="history-section">
+        <div className="history-header">
+          <h3>Audit Trail (Riwayat Validasi)</h3>
+          <span style={{fontSize: '13px', color: 'var(--text-muted)'}}>Total: {scanHistory.length} Transaksi</span>
         </div>
-      </section>
+        
+        {scanHistory.length === 0 ? (
+          <div style={{textAlign: 'center', padding: '30px', color: 'var(--text-muted)'}}>
+            <div style={{fontSize: '28px', marginBottom: '8px'}}>📂</div>
+            <p style={{margin: 0, fontSize: '14px'}}>Belum ada riwayat dokumen yang diproses hari ini.</p>
+          </div>
+        ) : (
+          <div className="table-responsive-wrapper">
+            <table className="history-table">
+              <thead>
+                <tr>
+                  <th>ID Transaksi</th>
+                  <th>Waktu Audit</th>
+                  <th>Nama File (Input)</th>
+                  <th>Status KYC</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scanHistory.map((item) => (
+                  <tr key={item.id} onClick={() => setSelectedRecord(item)} title="Klik untuk melihat detail laporan per dokumen">
+                    <td style={{fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--primary)'}}>TRX-{item.id.toString().slice(-6)}</td>
+                    <td style={{ whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>{item.date}</td>
+                    <td>
+                      <div className="file-tags">
+                        {item.files.map((fileName, idx) => (
+                          <span key={idx} className="file-tag">{fileName}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`badge ${item.status === 'Valid' ? 'success' : item.status === 'Invalid' ? 'danger' : 'warning'}`}>
+                        {item.status === 'Valid' ? '✅ AMAN' : item.status === 'Invalid' ? '⚠️ FRAUD / REVIEW' : '❌ GAGAL BACA'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* MODAL POP-UP DETAIL TRANSAKSI (PER IMAGE BREAKDOWN) */}
+      {selectedRecord && (
+        <div className="modal-overlay" onClick={() => setSelectedRecord(null)}>
+          <div className="modal-content report-modal" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={() => setSelectedRecord(null)}>✕</button>
+            <div className="report-modal-header">
+              <h2>Detail Audit Per Dokumen: TRX-{selectedRecord.id.toString().slice(-6)}</h2>
+              <div style={{display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap'}}>
+                <span style={{fontSize: '12.5px', color: 'var(--text-muted)'}}>📅 {selectedRecord.date}</span>
+                <span className={`badge ${selectedRecord.status === 'Valid' ? 'success' : selectedRecord.status === 'Invalid' ? 'danger' : 'warning'}`}>
+                   Status: {selectedRecord.status.toUpperCase()}
+                </span>
+              </div>
+            </div>
+            <div className="report-modal-body">
+              <pre className="report-modal-text">{selectedRecord.reportData}</pre>
+            </div>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 };
 
 const ScanHandwritten = ({ setView, addHistory }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [isOcrScanning, setIsOcrScanning] = useState(false);
-  const [scanDone, setScanDone] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [ocrText, setOcrText] = useState('');
-  const [modalImage, setModalImage] = useState(null);
+  const [zoomedImage, setZoomedImage] = useState(null); 
+  const [sysProgress, setSysProgress] = useState({ visible: false, label: '', percent: 0 });
+  
+  const logContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [ocrText, sysProgress]);
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      setSelectedFiles(prev => [...prev, ...files]);
-      setOcrText('');
-      setScanDone(false);
+    if (e.target.files.length > 0) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files)]);
     }
   };
 
   const handleRemoveFile = (indexToRemove) => {
-    setSelectedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
-    setOcrText('');
-    setScanDone(false);
+    setSelectedFiles(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const handleExportExcel = () => {
     const blob = new Blob([ocrText], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Ekstrak_Batch_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `KYC_Audit_Report_${Date.now()}.csv`);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
 
-  const handleScan = () => {
-    setIsOcrScanning(true);
-    setScanDone(false);
-    setOcrText(">> [SYSTEM] Memulai inisialisasi OCR...\n");
+  const handleScan = async () => {
+    setIsScanning(true);
+    setOcrText(">> [SYSTEM_INIT] Memulai siklus OCR Multidokumen...\n");
+    let resultText = "";
+    let systemStatus = "Failed";
+    let perFileBreakdown = [];
 
-    setTimeout(() => setOcrText(prev => prev + `>> [INFO] Memproses ${selectedFiles.length} dokumen secara paralel...\n`), 600);
-    setTimeout(() => setOcrText(prev => prev + ">> [PROCESS] Melakukan ekstraksi & validasi struktur...\n"), 1400);
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const fileNameLower = file.name.toLowerCase();
+      let currentParsedText = "";
+      
+      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Menganalisis antrean file...\n`);
+      
+      const matchedData = ocrDummyDatabase.find(data => data.aliases.some(alias => fileNameLower.includes(alias)));
 
-    setTimeout(() => {
-      let finalText = '';
-      let matchCount = 0;
+      if (matchedData) {
+        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Mengekstrak dokumen...`, percent: 0 });
+        for(let p=0; p<=100; p+=25) { setSysProgress(prev => ({...prev, percent: p})); await delay(100); }
+        setSysProgress({ visible: false, label: '', percent: 0 });
 
-      selectedFiles.forEach(file => {
-        const fileNameLower = file.name.toLowerCase();
+        currentParsedText = matchedData.text;
+      } 
+      else {
+        setSysProgress({ visible: true, label: `[CLOUD_AI] Mengekstrak dokumen...`, percent: 0 });
+        setOcrText(prev => prev + `>> [NET_TRANSMIT] Mengirim paket terenkripsi ke node Cloud AI...\n`);
         
-        const matchedData = ocrDummyDatabase.find(data => 
-          data.aliases.some(alias => fileNameLower.includes(alias))
-        );
+        const progressInterval = setInterval(() => {
+          setSysProgress(prev => ({ 
+            ...prev, percent: prev.percent < 95 ? prev.percent + (95 - prev.percent) * 0.1 : prev.percent 
+          }));
+        }, 300);
 
-        if (matchedData) {
-          finalText += `\n========================================\n📄 FILE TERDETEKSI: ${file.name}\n========================================\n${matchedData.text}\n\n`;
-          matchCount++;
+        try {
+          const base64Data = await fileToBase64(file);
+          const response = await fetch('/api/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: base64Data, mimeType: file.type })
+          });
+
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Timeout gateway server.');
+          
+          currentParsedText = data.text;
+          
+          clearInterval(progressInterval);
+          setSysProgress(prev => ({ ...prev, percent: 100 }));
+          await delay(300); 
+          setSysProgress({ visible: false, label: '', percent: 0 });
+        } catch (error) {
+          clearInterval(progressInterval);
+          setSysProgress({ visible: false, label: '', percent: 0 });
+          currentParsedText = `ERROR: ${error.message}`;
+        }
+      }
+
+      let detectedDocType = "DOKUMEN TIDAK DIKENAL";
+      if (currentParsedText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(currentParsedText)) {
+        detectedDocType = "KTP";
+      } else if (currentParsedText.includes('[DOKUMEN: NPWP]') || /NPWP\s*:|KPP\s*:/i.test(currentParsedText)) {
+        detectedDocType = "NPWP";
+      } else if (currentParsedText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Gadis Ibu Kandung\s*:/i.test(currentParsedText)) {
+        detectedDocType = "FORMULIR APLIKASI";
+      }
+
+      if (currentParsedText.includes('ERROR:')) {
+        resultText += `\n========================================\n❌ [ERR_EXCEPTION]: GAGAL MEMBACA DOKUMEN (${file.name})\n========================================\nStatus: ${currentParsedText}\n`;
+        perFileBreakdown.push({ fileName: file.name, type: 'GAGAL', status: 'Gagal Dibaca' });
+      } else {
+        resultText += `\n========================================\n🌐 [API_RESPONSE]: ${detectedDocType}\n========================================\n${currentParsedText}\n`;
+        perFileBreakdown.push({ fileName: file.name, type: detectedDocType, status: 'Berhasil Diekstrak' });
+      }
+
+      if (i < selectedFiles.length - 1 && !matchedData) {
+        const totalWaitTime = 15000; 
+        const steps = 50; 
+        const stepTime = totalWaitTime / steps;
+        
+        for (let p = 0; p <= 100; p += (100 / steps)) {
+          setSysProgress({ visible: true, label: `[NET_SYNC] API Rate Limit Protection`, percent: p });
+          await delay(stepTime);
+        }
+        setSysProgress({ visible: false, label: '', percent: 0 });
+      }
+    }
+
+    setOcrText(prev => prev + `\n>> [VALIDATION_NODE] Menginisialisasi Cross-Validation KYC...\n`);
+    setSysProgress({ visible: true, label: `[SECURITY_CHECK] Menjalankan Identity Matching...`, percent: 0 });
+    for(let p=0; p<=100; p+=10) { setSysProgress(prev => ({...prev, percent: p})); await delay(80); }
+    setSysProgress({ visible: false, label: '', percent: 0 });
+    
+    const hasKTP = resultText.includes('🌐 [API_RESPONSE]: KTP');
+    const hasNPWP = resultText.includes('🌐 [API_RESPONSE]: NPWP');
+    const hasForm = resultText.includes('🌐 [API_RESPONSE]: FORMULIR APLIKASI');
+
+    const nameMatches = [...resultText.matchAll(/(?:Nama|Nama Pejabat|Nama Lengkap)\s*:\s*([^\n]+)/gi)]
+                          .map(m => m[1].trim())
+                          .filter(val => val.toLowerCase() !== 'null' && val !== '');
+    
+    let comparisonDetails = "";
+    if (nameMatches.length > 1) {
+      const referenceName = nameMatches[0].toLowerCase(); 
+      let allMatch = true;
+      
+      nameMatches.forEach((nameVal, index) => {
+        const currentName = nameVal.toLowerCase();
+        if (currentName === referenceName) {
+          comparisonDetails += `- Entitas Dokumen [${index}] : MATCH (${nameVal.toUpperCase()})\n`;
+        } else {
+          comparisonDetails += `- Entitas Dokumen [${index}] : MISMATCH / FRAUD ALERT (${nameVal.toUpperCase()})\n`;
+          allMatch = false;
         }
       });
-
-      if (matchCount === 0) {
-        finalText = `[HASIL OCR]:\n\nMemproses ${selectedFiles.length} dokumen, namun format tidak spesifik (tidak terdeteksi sebagai dokumen yang sah).`;
+      
+      if (allMatch) {
+        systemStatus = "Valid";
       } else {
-        finalText = `✅ [BERHASIL]: Mengekstrak ${matchCount} dari total ${selectedFiles.length} dokumen.\n` + finalText;
+        systemStatus = "Invalid";
       }
+    } else if (nameMatches.length === 1) {
+      comparisonDetails += `- Cross-Validation : Bypass (Hanya 1 dokumen valid terdeteksi).\n`;
+      systemStatus = "Valid";
+    } else {
+      comparisonDetails += `- Cross-Validation : Gagal mengekstrak nama dari dokumen.\n`;
+      systemStatus = "Failed";
+    }
 
-      setOcrText(finalText);
-      setIsOcrScanning(false);
-      setScanDone(true);
+    let structuredReportModal = `========================================\n📋 LAPORAN AUDIT DETAIL PER DOKUMEN\n========================================\n\n`;
+    perFileBreakdown.forEach((item, idx) => {
+      structuredReportModal += `📄 [File ${idx + 1}]: ${item.fileName}\n`;
+      structuredReportModal += `   - Jenis Dokumen Terdeteksi : ${item.type}\n`;
+      structuredReportModal += `   - Status Ekstraksi         : ${item.status}\n\n`;
+    });
 
-      if (addHistory) {
-        addHistory(prev => [{
-          id: `TRX-${Date.now().toString().slice(-6)}`,
-          date: new Date().toLocaleDateString('en-GB'),
-          type: 'Handwritten',
-          filename: selectedFiles.length === 1 ? selectedFiles[0].name : `Batch Scan (${selectedFiles.length} File)`,
-          status: 'Extracted',
-        }, ...prev]);
-      }
-    }, 2500); 
+    structuredReportModal += `----------------------------------------\n`;
+    structuredReportModal += `[ANALISIS KECOCOKAN IDENTITAS]\n`;
+    structuredReportModal += `${comparisonDetails}\n`;
+    
+    structuredReportModal += `----------------------------------------\n`;
+    structuredReportModal += `[KESIMPULAN AKHIR SISTEM]\n`;
+    if (systemStatus === 'Valid') {
+      structuredReportModal += `👉 KTP, NPWP, dan Formulir Aplikasi terverifikasi MATCH (Valid). Seluruh entitas nasabah konsisten dan siap diproses ke core banking.`;
+    } else if (systemStatus === 'Invalid') {
+      structuredReportModal += `⚠️ PERINGATAN: KTP dan NPWP Match, namun terdapat ketidaksesuaian data pada Formulir Aplikasi! Harap lakukan peninjauan manual untuk mencegah fraud.`;
+    } else {
+      structuredReportModal += `❌ GAGAL: Dokumen tidak lengkap atau gagal dibaca oleh mesin OCR. Transaksi ditangguhkan.`;
+    }
+
+    let terminalReport = `\n\n========================================\n📋 [FINAL REPORT: KYC VALIDATION]\n========================================\n`;
+    terminalReport += `[DOCUMENT_INTEGRITY]\n`;
+    terminalReport += `- KTP                : ${hasKTP ? '✅ Done' : '❌ Null / Unreadable'}\n`;
+    terminalReport += `- NPWP               : ${hasNPWP ? '✅ Done' : '❌ Null / Unreadable'}\n`;
+    terminalReport += `- Formulir Aplikasi  : ${hasForm ? '✅ Done' : '❌ Null / Unreadable'}\n\n`;
+    terminalReport += `[IDENTITY_MATCHING]\n${comparisonDetails}\n`;
+    terminalReport += `[SYSTEM_VERDICT]\n${systemStatus === 'Valid' ? '✅ STATUS AMAN. Terverifikasi valid.' : '⚠️ STATUS INVALID. Perbedaan terdeteksi. Wajib manual review.'}\n`;
+
+    resultText += `\n\n${terminalReport}`;
+    setOcrText(`[TRANSACTION_COMPLETE]\n${resultText}`);
+    setIsScanning(false);
+
+    const fileNamesArray = selectedFiles.map(f => f.name);
+    addHistory({
+      id: Date.now(),
+      date: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      files: fileNamesArray,
+      status: systemStatus,
+      reportData: structuredReportModal
+    });
   };
 
-  const isMultiLayout = selectedFiles.length > 1;
-  const workspaceClass = isMultiLayout ? 'ocr-workspace-vertical' : 'ocr-workspace-horizontal';
-
   return (
-    <div className="scan-page">
-      <button className="back-btn" onClick={() => setView('dashboard')}>← Kembali ke Dashboard</button>
-      
-      <div className="upload-container">
-        <h2>Scan Dokumen (Multi-Upload)</h2>
-        <p style={{color: '#64748b', marginBottom: '30px'}}>Unggah gambar sekaligus untuk diekstraksi secara otomatis .</p>
-        
-        <div className={`ocr-workspace ${workspaceClass}`}>
-          <div className="ocr-left">
-            {selectedFiles.length === 0 ? (
-              <div className="upload-box">
-                <div style={{fontSize: '40px', marginBottom: '10px'}}>📸</div>
-                <input type="file" id="image-upload" accept="image/*" multiple onChange={handleImageUpload} hidden />
-                <label htmlFor="image-upload" className="upload-label">Pilih Gambar Dokumen</label>
-              </div>
-            ) : (
-              <div className="multi-preview-container">
-                <div className="preview-header">
-                  <span>{selectedFiles.length} Dokumen Siap Diproses</span>
-                  <div>
-                    <input type="file" id="image-upload-more" accept="image/*" multiple onChange={handleImageUpload} hidden />
-                    <label htmlFor="image-upload-more" className="add-more-label">✚ Tambah</label>
-                  </div>
-                </div>
-                <div className="preview-grid">
-                  {selectedFiles.map((file, index) => {
-                    const objectUrl = URL.createObjectURL(file);
-                    return (
-                      <div key={index} className="preview-item">
-                        <button className="remove-file-btn" onClick={() => handleRemoveFile(index)}>✕</button>
-                        <img src={objectUrl} alt="preview" className="clickable-image" onClick={() => setModalImage(objectUrl)} />
-                        <p className="preview-name">{file.name}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {selectedFiles.length > 0 && !scanDone && (
-              <button className="action-btn primary-btn" onClick={handleScan} disabled={isOcrScanning}>
-                {isOcrScanning ? 'Memproses Dokumen...' : 'Jalankan Ekstraksi AI'}
-              </button>
-            )}
-
-            {scanDone && (
-              <button className="action-btn success-btn" onClick={handleExportExcel}>
-                ⬇️ Export Data ke Excel (.csv)
-              </button>
-            )}
-          </div>
-          
-          <div className="ocr-right">
-            <textarea className="ocr-result-text" placeholder="Terminal log & hasil ekstraksi akan muncul setelah proses selesai..." value={ocrText} readOnly></textarea>
-          </div>
-        </div>
-      </div>
-
-      {modalImage && (
-        <div className="image-modal-overlay" onClick={() => setModalImage(null)}>
-          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal-btn" onClick={() => setModalImage(null)}>✕ Tutup</button>
-            <img src={modalImage} alt="Enlarged" />
+    <div className="main-content">
+      {zoomedImage && (
+        <div className="modal-overlay" onClick={() => setZoomedImage(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={() => setZoomedImage(null)}>✕</button>
+            <img src={zoomedImage} alt="Zoomed Preview" />
           </div>
         </div>
       )}
+
+      <div className="workspace-header">
+        <h1 className="workspace-title">Validation Workspace</h1>
+        <button className="back-btn" onClick={() => setView('dashboard')}>← Keluar Workspace</button>
+      </div>
+      
+      <div className="workspace-grid">
+        
+        {/* KOLOM KIRI: CONTROL PANEL */}
+        <div className="control-panel">
+          <div className="preview-section">
+            <h4 style={{margin: '0 0 10px 0', fontSize: '14px', color: 'var(--text-main)'}}>Antrean Dokumen</h4>
+            
+            {selectedFiles.length === 0 ? (
+              <div className="upload-box">
+                <div style={{fontSize: '36px', marginBottom:'8px'}}>📥</div>
+                <input type="file" id="image-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
+                <label htmlFor="image-upload" className="upload-label">Pilih Berkas</label>
+                <p style={{fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '10px', marginBottom: 0}}>Mendukung JPG, PNG, PDF</p>
+              </div>
+            ) : (
+              <div className="preview-grid">
+                {selectedFiles.map((file, i) => (
+                  <div key={i} className="preview-item">
+                    <button className="remove-file-btn" onClick={() => handleRemoveFile(i)}>✕</button>
+                    {file.type === 'application/pdf' ? (
+                      <div className="pdf-preview-box">PDF</div>
+                    ) : (
+                      <img src={URL.createObjectURL(file)} alt="preview" className="clickable-image" onClick={() => setZoomedImage(URL.createObjectURL(file))} />
+                    )}
+                  </div>
+                ))}
+
+                <label className="add-more-box" htmlFor="add-more-upload">
+                  <span style={{fontSize: '18px', marginBottom: '2px'}}>+</span>
+                  Tambah
+                  <input type="file" id="add-more-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
+                </label>
+              </div>
+            )}
+          </div>
+
+          <div style={{borderTop: '1px solid var(--border-light)', paddingTop: '16px'}}>
+            <button className="action-btn primary-btn" onClick={handleScan} disabled={isScanning || selectedFiles.length === 0}>
+              {isScanning ? (
+                <>⏳ Memproses Transaksi...</>
+              ) : (
+                <>▶ Jalankan Engine AI</>
+              )}
+            </button>
+          </div>
+        </div>
+        
+        {/* KOLOM KANAN: CLEAN LOG PANEL */}
+        <div className="log-panel">
+          <div className="log-header">
+            <h3 className="log-title">
+              <span style={{fontSize: '16px'}}>📟</span> System Activity Log
+            </h3>
+            {ocrText.includes('[TRANSACTION_COMPLETE]') && (
+              <button className="export-btn" onClick={handleExportExcel}>
+                ⬇ Export CSV
+              </button>
+            )}
+          </div>
+
+          <div className="ocr-result-text" ref={logContainerRef}>
+            {ocrText}
+            
+            {sysProgress.visible && (
+              <div style={{ 
+                display: 'flex', alignItems: 'center', gap: '10px', 
+                marginTop: '12px', padding: '10px 12px', 
+                background: '#f0f7ff', borderRadius: '8px', 
+                borderLeft: '3px solid var(--primary)' 
+              }}>
+                <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '12.5px' }}>
+                  {">>"} {sysProgress.label} ({Math.round(sysProgress.percent)}%)
+                </span>
+                <div style={{ flex: 1, height: '6px', background: '#cbd5e1', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ width: `${sysProgress.percent}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.2s linear' }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [history, setHistory] = useState(historyData);
+  
+  const [scanHistory, setScanHistory] = useState([]);
+  
+  const addHistory = (record) => {
+    setScanHistory(prev => [record, ...prev]);
+  };
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: appStyles }} />
       <div className="app-wrapper">
         <Navbar setView={setCurrentView} />
-        <main className="main-content">
-          {currentView === 'dashboard' && <Dashboard setView={setCurrentView} history={history} />}
-          {currentView === 'scan-handwritten' && <ScanHandwritten setView={setCurrentView} addHistory={setHistory} />}
-        </main>
+        {currentView === 'dashboard' ? (
+          <Dashboard setView={setCurrentView} scanHistory={scanHistory} />
+        ) : (
+          <ScanHandwritten setView={setCurrentView} addHistory={addHistory} />
+        )}
       </div>
     </>
   );
