@@ -42,7 +42,6 @@ const appStyles = `
   .user-avatar { background: var(--primary); color: white; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; font-size: 13px; }
   .user-name { font-weight: 600; font-size: 14px; }
   
-  /* Dropdown Menu untuk Download Sample */
   .profile-dropdown { position: absolute; top: 110%; right: 0; background: white; border: 1px solid var(--border-light); border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 260px; z-index: 200; overflow: hidden; }
   .dropdown-header { padding: 12px 16px; background: #f8fafc; font-size: 12px; font-weight: bold; color: var(--text-muted); border-bottom: 1px solid var(--border-light); }
   .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--text-main); text-decoration: none; font-size: 13px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
@@ -99,7 +98,7 @@ const appStyles = `
   
   /* Left Panel: Controls */
   .control-panel { background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; }
-  .upload-box { border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; padding: 30px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+  .upload-box { border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; padding: 30px 16px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
   .upload-box:hover { border-color: var(--primary); background: #f0f7ff; }
   .upload-label { background: var(--surface); border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 8px; font-weight: 600; color: var(--primary); cursor: pointer; display: inline-block; box-shadow: var(--shadow-sm); font-size: 14px; }
   
@@ -108,7 +107,6 @@ const appStyles = `
   .preview-item { position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-light); background: #f8fafc; }
   .clickable-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.2s; }
   .clickable-image:hover { opacity: 0.8; transform: scale(1.05); }
-  .pdf-preview-box { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; font-size: 14px; font-weight: 800; color: var(--danger); }
   .remove-file-btn { position: absolute; top: 3px; right: 3px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; z-index: 10; font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: center; }
   .add-more-box { width: 100%; aspect-ratio: 1; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); font-size: 11px; font-weight: bold; background: #f8fafc; transition: 0.2s; }
   .add-more-box:hover { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
@@ -155,7 +153,7 @@ const appStyles = `
 `;
 
 // ==========================================
-// 2. DATA DUMMY (FALLBACK LOKAL)
+// 2. DATA DUMMY (FALLBACK LOKAL - MURNI AGUSTINO)
 // ==========================================
 const ocrDummyDatabase = [
   {
@@ -187,10 +185,10 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const Navbar = ({ setView }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const sampleFiles = [
+    { name: 'comb_docs.pdf', type: 'pdf' },
     { name: 'form_agustino.jpeg', type: 'image' },
     { name: 'ktp_agustino.jpeg', type: 'image' },
-    { name: 'npwp_agustino.jpeg', type: 'image' },
-    { name: 'MIRA_SETIAWAN.pdf', type: 'pdf' }
+    { name: 'npwp_agustino.jpeg', type: 'image' }
   ];
 
   return (
@@ -202,8 +200,8 @@ const Navbar = ({ setView }) => {
         
         <div className="nav-profile-container">
           <div className="nav-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <span className="user-avatar">AM</span>
-            <span className="user-name">Admin Mandiri</span>
+            <span className="user-avatar">AD</span>
+            <span className="user-name">Admin Pusat ▼</span>
           </div>
           
           {dropdownOpen && (
@@ -248,7 +246,6 @@ const Dashboard = ({ setView, scanHistory }) => {
         </article>
       </div>
 
-      {/* HISTORY SECTION */}
       <div className="history-section">
         <div className="history-header">
           <h3>Audit Trail (Riwayat Validasi)</h3>
@@ -296,7 +293,6 @@ const Dashboard = ({ setView, scanHistory }) => {
         )}
       </div>
 
-      {/* MODAL POP-UP DETAIL TRANSAKSI (PER IMAGE BREAKDOWN) */}
       {selectedRecord && (
         <div className="modal-overlay" onClick={() => setSelectedRecord(null)}>
           <div className="modal-content report-modal" onClick={e => e.stopPropagation()}>
@@ -324,11 +320,23 @@ const Dashboard = ({ setView, scanHistory }) => {
 const ScanHandwritten = ({ setView, addHistory }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
+  const [isExtractingPDF, setIsExtractingPDF] = useState(false);
   const [ocrText, setOcrText] = useState('');
   const [zoomedImage, setZoomedImage] = useState(null); 
   const [sysProgress, setSysProgress] = useState({ visible: false, label: '', percent: 0 });
   
   const logContainerRef = useRef(null);
+
+  // Injeksi Script Library PDF.js untuk membedah PDF
+  useEffect(() => {
+    if (!document.getElementById('pdfjs-script')) {
+      const script = document.createElement('script');
+      script.id = 'pdfjs-script';
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   useEffect(() => {
     if (logContainerRef.current) {
@@ -336,9 +344,48 @@ const ScanHandwritten = ({ setView, addHistory }) => {
     }
   }, [ocrText, sysProgress]);
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     if (e.target.files.length > 0) {
-      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files)]);
+      setIsExtractingPDF(true); // Tampilkan loading saat membongkar PDF
+      const files = Array.from(e.target.files);
+      let processedFiles = [];
+      
+      for (let file of files) {
+        if (file.type === 'application/pdf') {
+          // LOGIKA UNPACK PDF MENJADI MULTIPLE IMAGE
+          if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            try {
+              const arrayBuffer = await file.arrayBuffer();
+              const pdf = await window.pdfjsLib.getDocument(arrayBuffer).promise;
+              
+              for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 1.5 }); // Pertajam resolusi untuk AI
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                
+                // Ubah nama menjadi MIRA_SETIAWAN_Page_1, Page_2, dll
+                const imgFile = new File([blob], `${file.name.replace('.pdf', '')}_Page_${i}.jpg`, { type: 'image/jpeg' });
+                processedFiles.push(imgFile);
+              }
+            } catch (error) {
+              console.error("Gagal ekstrak PDF:", error);
+              processedFiles.push(file); 
+            }
+          } else {
+            processedFiles.push(file);
+          }
+        } else {
+          processedFiles.push(file); // Bukan PDF, biarkan gambar utuh
+        }
+      }
+      setSelectedFiles(prev => [...prev, ...processedFiles]);
+      setIsExtractingPDF(false);
     }
   };
 
@@ -356,30 +403,31 @@ const ScanHandwritten = ({ setView, addHistory }) => {
 
   const handleScan = async () => {
     setIsScanning(true);
-    setOcrText(">> [SYSTEM_INIT] Memulai siklus OCR Multidokumen...\n");
+    setOcrText(">> [SYSTEM_INIT] Memulai siklus OCR (1 By 1 Image Node)...\n");
     let resultText = "";
     let systemStatus = "Failed";
     let perFileBreakdown = [];
 
+    // Looping scan persis "1-by-1 image" seperti yang Anda minta
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       const fileNameLower = file.name.toLowerCase();
       let currentParsedText = "";
       
-      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Menganalisis antrean file...\n`);
+      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Menganalisis file: ${file.name}\n`);
       
       const matchedData = ocrDummyDatabase.find(data => data.aliases.some(alias => fileNameLower.includes(alias)));
 
       if (matchedData) {
-        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Mengekstrak dokumen...`, percent: 0 });
+        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Membaca data...`, percent: 0 });
         for(let p=0; p<=100; p+=25) { setSysProgress(prev => ({...prev, percent: p})); await delay(100); }
         setSysProgress({ visible: false, label: '', percent: 0 });
 
         currentParsedText = matchedData.text;
       } 
       else {
-        setSysProgress({ visible: true, label: `[CLOUD_AI] Mengekstrak dokumen...`, percent: 0 });
-        setOcrText(prev => prev + `>> [NET_TRANSMIT] Mengirim paket terenkripsi ke node Cloud AI...\n`);
+        setSysProgress({ visible: true, label: `[CLOUD_AI] Mengekstrak data gambar...`, percent: 0 });
+        setOcrText(prev => prev + `>> [NET_TRANSMIT] Mengirim payload ke Cloud AI...\n`);
         
         const progressInterval = setInterval(() => {
           setSysProgress(prev => ({ 
@@ -411,32 +459,33 @@ const ScanHandwritten = ({ setView, addHistory }) => {
         }
       }
 
-      let detectedDocType = "DOKUMEN TIDAK DIKENAL";
+      let detectedDocTypes = [];
       if (currentParsedText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(currentParsedText)) {
-        detectedDocType = "KTP";
-      } else if (currentParsedText.includes('[DOKUMEN: NPWP]') || /NPWP\s*:|KPP\s*:/i.test(currentParsedText)) {
-        detectedDocType = "NPWP";
-      } else if (currentParsedText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Gadis Ibu Kandung\s*:/i.test(currentParsedText)) {
-        detectedDocType = "FORMULIR APLIKASI";
+        detectedDocTypes.push("KTP");
+      }
+      if (currentParsedText.includes('[DOKUMEN: NPWP]') || /NPWP\s*:|No NPWP|KPP\s*:/i.test(currentParsedText)) {
+        detectedDocTypes.push("NPWP");
+      }
+      if (currentParsedText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Lengkap\s*:/i.test(currentParsedText) || /Pt Critati Cahaya kencana|Aplikasi Mandiri/i.test(currentParsedText)) {
+        detectedDocTypes.push("FORMULIR APLIKASI");
+      }
+
+      if (detectedDocTypes.length === 0) {
+        detectedDocTypes.push("DOKUMEN TIDAK DIKENAL / KOSONG");
       }
 
       if (currentParsedText.includes('ERROR:')) {
-        resultText += `\n========================================\n❌ [ERR_EXCEPTION]: GAGAL MEMBACA DOKUMEN (${file.name})\n========================================\nStatus: ${currentParsedText}\n`;
-        perFileBreakdown.push({ fileName: file.name, type: 'GAGAL', status: 'Gagal Dibaca' });
+        resultText += `\n========================================\n❌ [ERR_EXCEPTION]: GAGAL MEMBACA (${file.name})\n========================================\nStatus: ${currentParsedText}\n`;
+        perFileBreakdown.push({ fileName: file.name, type: 'GAGAL', status: 'Gagal Dibaca (Quota Limit / Error)' });
       } else {
-        resultText += `\n========================================\n🌐 [API_RESPONSE]: ${detectedDocType}\n========================================\n${currentParsedText}\n`;
-        perFileBreakdown.push({ fileName: file.name, type: detectedDocType, status: 'Berhasil Diekstrak' });
+        resultText += `\n========================================\n🌐 [API_RESPONSE]: ${detectedDocTypes.join(' & ')}\n========================================\n${currentParsedText}\n`;
+        perFileBreakdown.push({ fileName: file.name, type: detectedDocTypes.join(', '), status: 'Berhasil Diekstrak' });
       }
-
+      
+      // Delay agar AI API tidak kena Rate Limit (Karena kita men-scan 3 image beruntun dari hasil pecahan PDF)
       if (i < selectedFiles.length - 1 && !matchedData) {
-        const totalWaitTime = 15000; 
-        const steps = 50; 
-        const stepTime = totalWaitTime / steps;
-        
-        for (let p = 0; p <= 100; p += (100 / steps)) {
-          setSysProgress({ visible: true, label: `[NET_SYNC] API Rate Limit Protection`, percent: p });
-          await delay(stepTime);
-        }
+        setSysProgress({ visible: true, label: `[RATE_LIMIT] Menunggu siklus API berikutnya...`, percent: 50 });
+        await delay(5000); 
         setSysProgress({ visible: false, label: '', percent: 0 });
       }
     }
@@ -446,42 +495,61 @@ const ScanHandwritten = ({ setView, addHistory }) => {
     for(let p=0; p<=100; p+=10) { setSysProgress(prev => ({...prev, percent: p})); await delay(80); }
     setSysProgress({ visible: false, label: '', percent: 0 });
     
-    const hasKTP = resultText.includes('🌐 [API_RESPONSE]: KTP');
-    const hasNPWP = resultText.includes('🌐 [API_RESPONSE]: NPWP');
-    const hasForm = resultText.includes('🌐 [API_RESPONSE]: FORMULIR APLIKASI');
+    // ==========================================
+    // LOGIKA PENCOCOKAN ENTITAS PER DOKUMEN
+    // ==========================================
+    const hasKTP = resultText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(resultText);
+    const hasNPWP = resultText.includes('[DOKUMEN: NPWP]') || /No NPWP\s*:/i.test(resultText);
+    const hasForm = resultText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Lengkap\s*:/i.test(resultText);
 
-    const nameMatches = [...resultText.matchAll(/(?:Nama|Nama Pejabat|Nama Lengkap)\s*:\s*([^\n]+)/gi)]
-                          .map(m => m[1].trim())
-                          .filter(val => val.toLowerCase() !== 'null' && val !== '');
-    
-    let comparisonDetails = "";
-    if (nameMatches.length > 1) {
-      const referenceName = nameMatches[0].toLowerCase(); 
-      let allMatch = true;
-      
-      nameMatches.forEach((nameVal, index) => {
-        const currentName = nameVal.toLowerCase();
-        if (currentName === referenceName) {
-          comparisonDetails += `- Entitas Dokumen [${index}] : MATCH (${nameVal.toUpperCase()})\n`;
-        } else {
-          comparisonDetails += `- Entitas Dokumen [${index}] : MISMATCH / FRAUD ALERT (${nameVal.toUpperCase()})\n`;
-          allMatch = false;
-        }
-      });
-      
-      if (allMatch) {
-        systemStatus = "Valid";
-      } else {
-        systemStatus = "Invalid";
-      }
-    } else if (nameMatches.length === 1) {
-      comparisonDetails += `- Cross-Validation : Bypass (Hanya 1 dokumen valid terdeteksi).\n`;
-      systemStatus = "Valid";
-    } else {
-      comparisonDetails += `- Cross-Validation : Gagal mengekstrak nama dari dokumen.\n`;
-      systemStatus = "Failed";
+    let extractedEntities = [];
+
+    // Ambil nama dari KTP
+    if (hasKTP) {
+      const match = resultText.match(/\[DOKUMEN:\s*KTP\][\s\S]*?Nama\s*:\s*([^\n]+)/i) || resultText.match(/NIK[\s\S]*?Nama\s*:\s*([^\n]+)/i);
+      extractedEntities.push({ type: 'KTP', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
+    }
+    // Ambil nama dari NPWP
+    if (hasNPWP) {
+      const match = resultText.match(/\[DOKUMEN:\s*NPWP\][\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]+)/i) || resultText.match(/NPWP[\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]+)/i);
+      extractedEntities.push({ type: 'NPWP', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
+    }
+    // Ambil nama dari FORMULIR
+    if (hasForm) {
+      const match = resultText.match(/\[DOKUMEN:\s*FORMULIR APLIKASI\][\s\S]*?Nama Lengkap\s*:\s*([^\n]+)/i) || resultText.match(/Nama Lengkap\s*:\s*([^\n]+)/i);
+      extractedEntities.push({ type: 'FORMULIR APLIKASI', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
     }
 
+    let isDataComplete = hasKTP && hasNPWP && hasForm;
+    let comparisonDetails = "";
+    let allMatch = true;
+
+    // Evaluasi Kecocokan (Strict Match)
+    if (extractedEntities.length > 0) {
+      extractedEntities.forEach(ent => {
+        comparisonDetails += `- Nama pada ${ent.type.padEnd(17)} : ${ent.name}\n`;
+      });
+      
+      const referenceName = extractedEntities[0].name;
+      // Valid jika SEMUA dokumen ada nama (TIDAK NULL) dan namanya sama persis!
+      allMatch = extractedEntities.every(e => e.name !== 'NULL' && e.name === referenceName);
+    } else {
+      allMatch = false;
+      comparisonDetails += `- Tidak ada data identitas (Nama) yang ditemukan untuk divalidasi.\n`;
+    }
+
+    if (isDataComplete && allMatch) {
+      systemStatus = "Valid";
+      comparisonDetails += `\n> [VERDICT]: ✅ MATCH. Identitas konsisten di semua dokumen wajib.`;
+    } else if (isDataComplete && !allMatch) {
+      systemStatus = "Invalid";
+      comparisonDetails += `\n> [VERDICT]: ⚠️ MISMATCH / FRAUD ALERT. Terdapat perbedaan identitas atau data terdeteksi Null!`;
+    } else {
+      systemStatus = "Invalid";
+      comparisonDetails += `\n> [VERDICT]: ❌ INCOMPLETE. Dokumen wajib (KTP, NPWP, Formulir) tidak lengkap.`;
+    }
+
+    // Susun Format Laporan
     let structuredReportModal = `========================================\n📋 LAPORAN AUDIT DETAIL PER DOKUMEN\n========================================\n\n`;
     perFileBreakdown.forEach((item, idx) => {
       structuredReportModal += `📄 [File ${idx + 1}]: ${item.fileName}\n`;
@@ -496,20 +564,18 @@ const ScanHandwritten = ({ setView, addHistory }) => {
     structuredReportModal += `----------------------------------------\n`;
     structuredReportModal += `[KESIMPULAN AKHIR SISTEM]\n`;
     if (systemStatus === 'Valid') {
-      structuredReportModal += `👉 KTP, NPWP, dan Formulir Aplikasi terverifikasi MATCH (Valid). Seluruh entitas nasabah konsisten dan siap diproses ke core banking.`;
-    } else if (systemStatus === 'Invalid') {
-      structuredReportModal += `⚠️ PERINGATAN: KTP dan NPWP Match, namun terdapat ketidaksesuaian data pada Formulir Aplikasi! Harap lakukan peninjauan manual untuk mencegah fraud.`;
+      structuredReportModal += `👉 Dokumen lengkap (KTP, NPWP, Formulir) dan identitas terverifikasi MATCH. Siap diproses ke core banking.`;
     } else {
-      structuredReportModal += `❌ GAGAL: Dokumen tidak lengkap atau gagal dibaca oleh mesin OCR. Transaksi ditangguhkan.`;
+      structuredReportModal += `⚠️ PERINGATAN: Berkas dokumen tidak lengkap atau terdapat ketidakcocokan data/Fraud! Wajib ditinjau manual.`;
     }
 
     let terminalReport = `\n\n========================================\n📋 [FINAL REPORT: KYC VALIDATION]\n========================================\n`;
     terminalReport += `[DOCUMENT_INTEGRITY]\n`;
-    terminalReport += `- KTP                : ${hasKTP ? '✅ Done' : '❌ Null / Unreadable'}\n`;
-    terminalReport += `- NPWP               : ${hasNPWP ? '✅ Done' : '❌ Null / Unreadable'}\n`;
-    terminalReport += `- Formulir Aplikasi  : ${hasForm ? '✅ Done' : '❌ Null / Unreadable'}\n\n`;
+    terminalReport += `- KTP                : ${hasKTP ? '✅ Done' : '❌ Null / Missing'}\n`;
+    terminalReport += `- NPWP               : ${hasNPWP ? '✅ Done' : '❌ Null / Missing'}\n`;
+    terminalReport += `- Formulir Aplikasi  : ${hasForm ? '✅ Done' : '❌ Null / Missing'}\n\n`;
     terminalReport += `[IDENTITY_MATCHING]\n${comparisonDetails}\n`;
-    terminalReport += `[SYSTEM_VERDICT]\n${systemStatus === 'Valid' ? '✅ STATUS AMAN. Terverifikasi valid.' : '⚠️ STATUS INVALID. Perbedaan terdeteksi. Wajib manual review.'}\n`;
+    terminalReport += `[SYSTEM_VERDICT]\n${systemStatus === 'Valid' ? '✅ STATUS AMAN. Terverifikasi valid.' : '⚠️ STATUS INVALID / REVIEW. Manual action required.'}\n`;
 
     resultText += `\n\n${terminalReport}`;
     setOcrText(`[TRANSACTION_COMPLETE]\n${resultText}`);
@@ -550,27 +616,32 @@ const ScanHandwritten = ({ setView, addHistory }) => {
             
             {selectedFiles.length === 0 ? (
               <div className="upload-box">
-                <div style={{fontSize: '36px', marginBottom:'8px'}}>📥</div>
-                <input type="file" id="image-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
-                <label htmlFor="image-upload" className="upload-label">Pilih Berkas</label>
-                <p style={{fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '10px', marginBottom: 0}}>Mendukung JPG, PNG, PDF</p>
+                {isExtractingPDF ? (
+                   <div style={{color: 'var(--primary)', fontWeight: 'bold', fontSize: '14px'}}>⏳ Mengurai File PDF...</div>
+                ) : (
+                  <>
+                    <div style={{fontSize: '36px', marginBottom:'8px'}}>📥</div>
+                    <input type="file" id="image-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
+                    <label htmlFor="image-upload" className="upload-label">Pilih Berkas</label>
+                    <p style={{fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '10px', marginBottom: 0}}>Mendukung JPG, PNG, PDF</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="preview-grid">
-                {selectedFiles.map((file, i) => (
-                  <div key={i} className="preview-item">
-                    <button className="remove-file-btn" onClick={() => handleRemoveFile(i)}>✕</button>
-                    {file.type === 'application/pdf' ? (
-                      <div className="pdf-preview-box">PDF</div>
-                    ) : (
-                      <img src={URL.createObjectURL(file)} alt="preview" className="clickable-image" onClick={() => setZoomedImage(URL.createObjectURL(file))} />
-                    )}
-                  </div>
-                ))}
+                {selectedFiles.map((file, i) => {
+                  const fileUrl = URL.createObjectURL(file);
+                  return (
+                    <div key={i} className="preview-item">
+                      <button className="remove-file-btn" onClick={() => handleRemoveFile(i)}>✕</button>
+                      <img src={fileUrl} alt={`preview-${i}`} className="clickable-image" onClick={() => setZoomedImage(fileUrl)} />
+                    </div>
+                  );
+                })}
 
-                <label className="add-more-box" htmlFor="add-more-upload">
-                  <span style={{fontSize: '18px', marginBottom: '2px'}}>+</span>
-                  Tambah
+                <label className="add-more-box" htmlFor="add-more-upload" style={{opacity: isExtractingPDF ? 0.5 : 1, pointerEvents: isExtractingPDF ? 'none' : 'auto'}}>
+                  <span style={{fontSize: '18px', marginBottom: '2px'}}>{isExtractingPDF ? '⏳' : '+'}</span>
+                  {isExtractingPDF ? 'Loading' : 'Tambah'}
                   <input type="file" id="add-more-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
                 </label>
               </div>
@@ -578,7 +649,7 @@ const ScanHandwritten = ({ setView, addHistory }) => {
           </div>
 
           <div style={{borderTop: '1px solid var(--border-light)', paddingTop: '16px'}}>
-            <button className="action-btn primary-btn" onClick={handleScan} disabled={isScanning || selectedFiles.length === 0}>
+            <button className="action-btn primary-btn" onClick={handleScan} disabled={isScanning || selectedFiles.length === 0 || isExtractingPDF}>
               {isScanning ? (
                 <>⏳ Memproses Transaksi...</>
               ) : (
@@ -629,12 +700,9 @@ const ScanHandwritten = ({ setView, addHistory }) => {
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-  
   const [scanHistory, setScanHistory] = useState([]);
   
-  const addHistory = (record) => {
-    setScanHistory(prev => [record, ...prev]);
-  };
+  const addHistory = (record) => setScanHistory(prev => [record, ...prev]);
 
   return (
     <>

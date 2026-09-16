@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       throw new Error("GEMINI_API_KEY belum dikonfigurasi di environment variables");
     }
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     // PROMPT ENGINE: Menerapkan Strict Schema & Null Enforcement
     const requestBody = {
