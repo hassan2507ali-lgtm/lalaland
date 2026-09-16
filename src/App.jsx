@@ -200,8 +200,8 @@ const Navbar = ({ setView }) => {
         
         <div className="nav-profile-container">
           <div className="nav-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <span className="user-avatar">AD</span>
-            <span className="user-name">Admin Pusat ▼</span>
+            <span className="user-avatar">A</span>
+            <span className="user-name">Admin</span>
           </div>
           
           {dropdownOpen && (
@@ -234,28 +234,28 @@ const Dashboard = ({ setView, scanHistory }) => {
     <section className="dashboard">
       <header className="hero-section">
         <h1>Enterprise KYC <span>Engine</span></h1>
-        <p>Sistem Validasi Dokumen & Anti-Fraud Berbasis Cloud AI.</p>
+        <p>Sistem Validasi Dokumen & OCR.</p>
       </header>
       
       <div className="center-card-container">
         <article className="card" onClick={() => setView('scan')}>
           <div className="card-icon">⚡</div>
           <h3 className="card-title">Initiate Workspace</h3>
-          <p className="card-desc">Buka konsol untuk memproses dokumen KYC nasabah secara terpadu.</p>
-          <div style={{ marginTop: '16px', color: 'var(--primary)', fontWeight: 'bold' }}>Akses Konsol &rarr;</div>
+          <p className="card-desc">open console for KYC Document Processing.</p>
+          <div style={{ marginTop: '16px', color: 'var(--primary)', fontWeight: 'bold' }}>Access Console &rarr;</div>
         </article>
       </div>
 
       <div className="history-section">
         <div className="history-header">
-          <h3>Audit Trail (Riwayat Validasi)</h3>
+          <h3>History Report</h3>
           <span style={{fontSize: '13px', color: 'var(--text-muted)'}}>Total: {scanHistory.length} Transaksi</span>
         </div>
         
         {scanHistory.length === 0 ? (
           <div style={{textAlign: 'center', padding: '30px', color: 'var(--text-muted)'}}>
             <div style={{fontSize: '28px', marginBottom: '8px'}}>📂</div>
-            <p style={{margin: 0, fontSize: '14px'}}>Belum ada riwayat dokumen yang diproses hari ini.</p>
+            <p style={{margin: 0, fontSize: '14px'}}>No History Found</p>
           </div>
         ) : (
           <div className="table-responsive-wrapper">
@@ -414,20 +414,20 @@ const ScanHandwritten = ({ setView, addHistory }) => {
       const fileNameLower = file.name.toLowerCase();
       let currentParsedText = "";
       
-      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Menganalisis file: ${file.name}\n`);
+      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Analysing: ${file.name}\n`);
       
       const matchedData = ocrDummyDatabase.find(data => data.aliases.some(alias => fileNameLower.includes(alias)));
 
       if (matchedData) {
-        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Membaca data...`, percent: 0 });
+        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Reading...`, percent: 0 });
         for(let p=0; p<=100; p+=25) { setSysProgress(prev => ({...prev, percent: p})); await delay(100); }
         setSysProgress({ visible: false, label: '', percent: 0 });
 
         currentParsedText = matchedData.text;
       } 
       else {
-        setSysProgress({ visible: true, label: `[CLOUD_AI] Mengekstrak data gambar...`, percent: 0 });
-        setOcrText(prev => prev + `>> [NET_TRANSMIT] Mengirim payload ke Cloud AI...\n`);
+        setSysProgress({ visible: true, label: `[API] Extracting File...`, percent: 0 });
+        setOcrText(prev => prev + `>> [NET_TRANSMIT] Sending payload...\n`);
         
         const progressInterval = setInterval(() => {
           setSysProgress(prev => ({ 
@@ -484,14 +484,14 @@ const ScanHandwritten = ({ setView, addHistory }) => {
       
       // Delay agar AI API tidak kena Rate Limit (Karena kita men-scan 3 image beruntun dari hasil pecahan PDF)
       if (i < selectedFiles.length - 1 && !matchedData) {
-        setSysProgress({ visible: true, label: `[RATE_LIMIT] Menunggu siklus API berikutnya...`, percent: 50 });
+        setSysProgress({ visible: true, label: `[RATE_LIMIT] Waiting limit...`, percent: 50 });
         await delay(5000); 
         setSysProgress({ visible: false, label: '', percent: 0 });
       }
     }
 
-    setOcrText(prev => prev + `\n>> [VALIDATION_NODE] Menginisialisasi Cross-Validation KYC...\n`);
-    setSysProgress({ visible: true, label: `[SECURITY_CHECK] Menjalankan Identity Matching...`, percent: 0 });
+    setOcrText(prev => prev + `\n>> [VALIDATION_NODE] Cross-Validation KYC...\n`);
+    setSysProgress({ visible: true, label: `[SECURITY_CHECK] Identity Matching...`, percent: 0 });
     for(let p=0; p<=100; p+=10) { setSysProgress(prev => ({...prev, percent: p})); await delay(80); }
     setSysProgress({ visible: false, label: '', percent: 0 });
     
@@ -612,7 +612,7 @@ const ScanHandwritten = ({ setView, addHistory }) => {
         {/* KOLOM KIRI: CONTROL PANEL */}
         <div className="control-panel">
           <div className="preview-section">
-            <h4 style={{margin: '0 0 10px 0', fontSize: '14px', color: 'var(--text-main)'}}>Antrean Dokumen</h4>
+            <h4 style={{margin: '0 0 10px 0', fontSize: '14px', color: 'var(--text-main)'}}>Document Queue</h4>
             
             {selectedFiles.length === 0 ? (
               <div className="upload-box">
@@ -622,8 +622,8 @@ const ScanHandwritten = ({ setView, addHistory }) => {
                   <>
                     <div style={{fontSize: '36px', marginBottom:'8px'}}>📥</div>
                     <input type="file" id="image-upload" accept="image/*,application/pdf" multiple onChange={handleImageUpload} hidden />
-                    <label htmlFor="image-upload" className="upload-label">Pilih Berkas</label>
-                    <p style={{fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '10px', marginBottom: 0}}>Mendukung JPG, PNG, PDF</p>
+                    <label htmlFor="image-upload" className="upload-label">Upload Documents</label>
+                    <p style={{fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '10px', marginBottom: 0}}>JPG, PNG, PDF</p>
                   </>
                 )}
               </div>
@@ -653,7 +653,7 @@ const ScanHandwritten = ({ setView, addHistory }) => {
               {isScanning ? (
                 <>⏳ Memproses Transaksi...</>
               ) : (
-                <>▶ Jalankan Engine AI</>
+                <>Scan Documents</>
               )}
             </button>
           </div>
