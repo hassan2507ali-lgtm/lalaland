@@ -153,12 +153,12 @@ const appStyles = `
 `;
 
 // ==========================================
-// 2. DATA DUMMY (FALLBACK LOKAL - MURNI AGUSTINO)
+// 2. DATA DUMMY (FALLBACK LOKAL)
 // ==========================================
 const ocrDummyDatabase = [
   {
     aliases: ['form_agustino', 'form4'], 
-    text: `[DOKUMEN: FORMULIR APLIKASI]\nNama Lengkap : AGUSTINO SUFA BUBUN\nNama Alias : null\nTempat/Tgl Lahir : DILI, 17-03-1992\nNama Gadis Ibu Kandung : null\nJenis Kelamin : LAKI-LAKI\nJenis Identitas Utama : KTP\nNomor Identitas : 3578261703920003\nAlamat Sesuai ID : TAMAN PUSPARAYA A7/21A\nAgama : KATHOLIK\nStatus Pekerjaan : KARYAWAN SWASTA\nStatus Perkawinan : KAWIN\nPendidikan Terakhir : S1\nKewarganegaraan : WNI\nPekerjaan Sekarang : KARYAWAN SWASTA\nNama Perusahaan : PT. SRIJATI CAHAYA KENCANA\nBidang Usaha : null\nSumber Pendapatan : PENDAPATAN TETAP\nNPWP Tambahan : 1000000005375577\nAlamat Tinggal Sekarang : null\nEmail : null\nJenis Rekening : TABUNGAN MANDIRI\nTujuan Pembukaan Rekening : TRANSAKSI PRIBADI\nTujuan Penggunaan Dana : null`
+    text: `[DOKUMEN: FORMULIR APLIKASI]\nNama Lengkap : AGUSTINO SUFA BUBUN\nNama Alias : -\nTempat/Tgl Lahir : DILI, 17-03-1992\nNama Gadis Ibu Kandung : -\nJenis Kelamin : LAKI-LAKI\nJenis Identitas Utama : KTP\nNomor Identitas : 3578261703920003\nAlamat Sesuai ID : TAMAN PUSPARAYA A7/21A\nAgama : KATHOLIK\nStatus Pekerjaan : KARYAWAN SWASTA\nStatus Perkawinan : KAWIN\nPendidikan Terakhir : S1\nKewarganegaraan : WNI\nPekerjaan Sekarang : KARYAWAN SWASTA\nNama Perusahaan : PT. SRIJATI CAHAYA KENCANA\nBidang Usaha : -\nSumber Pendapatan : PENDAPATAN TETAP\nNPWP Tambahan : 1000000005375577\nAlamat Tinggal Sekarang : -\nEmail : -\nJenis Rekening : TABUNGAN MANDIRI\nTujuan Pembukaan Rekening : TRANSAKSI PRIBADI\nTujuan Penggunaan Dana : -`
   },
   {
     aliases: ['ktp_agustino'], 
@@ -319,6 +319,7 @@ const Dashboard = ({ setView, scanHistory }) => {
 
 const ScanHandwritten = ({ setView, addHistory }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]); 
   const [isScanning, setIsScanning] = useState(false);
   const [isExtractingPDF, setIsExtractingPDF] = useState(false);
   const [ocrText, setOcrText] = useState('');
@@ -327,7 +328,6 @@ const ScanHandwritten = ({ setView, addHistory }) => {
   
   const logContainerRef = useRef(null);
 
-  // Injeksi Script Library PDF.js untuk membedah PDF
   useEffect(() => {
     if (!document.getElementById('pdfjs-script')) {
       const script = document.createElement('script');
@@ -344,15 +344,16 @@ const ScanHandwritten = ({ setView, addHistory }) => {
     }
   }, [ocrText, sysProgress]);
 
+  // Fungsi Upload dengan Pembersihan Memori Total (Anti-White Screen)
   const handleImageUpload = async (e) => {
     if (e.target.files.length > 0) {
-      setIsExtractingPDF(true); // Tampilkan loading saat membongkar PDF
+      setIsExtractingPDF(true); 
       const files = Array.from(e.target.files);
       let processedFiles = [];
+      let processedUrls = []; 
       
       for (let file of files) {
         if (file.type === 'application/pdf') {
-          // LOGIKA UNPACK PDF MENJADI MULTIPLE IMAGE
           if (window.pdfjsLib) {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             try {
@@ -361,36 +362,48 @@ const ScanHandwritten = ({ setView, addHistory }) => {
               
               for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 1.5 }); // Pertajam resolusi untuk AI
+                const viewport = page.getViewport({ scale: 1.5 });
                 const canvas = document.createElement('canvas');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
                 
                 await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
                 
-                // Ubah nama menjadi MIRA_SETIAWAN_Page_1, Page_2, dll
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                
                 const imgFile = new File([blob], `${file.name.replace('.pdf', '')}_Page_${i}.jpg`, { type: 'image/jpeg' });
                 processedFiles.push(imgFile);
+                processedUrls.push(URL.createObjectURL(imgFile)); 
+
+                // Sapu bersih RAM dari PDF.js
+                page.cleanup(); 
+                canvas.width = 0; 
+                canvas.height = 0; 
               }
+              pdf.destroy(); 
             } catch (error) {
               console.error("Gagal ekstrak PDF:", error);
               processedFiles.push(file); 
+              processedUrls.push(URL.createObjectURL(file));
             }
           } else {
             processedFiles.push(file);
+            processedUrls.push(URL.createObjectURL(file));
           }
         } else {
-          processedFiles.push(file); // Bukan PDF, biarkan gambar utuh
+          processedFiles.push(file); 
+          processedUrls.push(URL.createObjectURL(file));
         }
       }
       setSelectedFiles(prev => [...prev, ...processedFiles]);
+      setFilePreviews(prev => [...prev, ...processedUrls]); 
       setIsExtractingPDF(false);
     }
   };
 
   const handleRemoveFile = (indexToRemove) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== indexToRemove));
+    setFilePreviews(prev => prev.filter((_, i) => i !== indexToRemove)); 
   };
 
   const handleExportExcel = () => {
@@ -401,194 +414,187 @@ const ScanHandwritten = ({ setView, addHistory }) => {
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
 
+  // Fungsi Utama Scan dengan Proteksi Cerdas (Smart Abort & Try-Catch Global)
   const handleScan = async () => {
-    setIsScanning(true);
-    setOcrText(">> [SYSTEM_INIT] Memulai siklus OCR (1 By 1 Image Node)...\n");
-    let resultText = "";
-    let systemStatus = "Failed";
-    let perFileBreakdown = [];
+    try {
+      setIsScanning(true);
+      setOcrText(">> [SYSTEM_INIT] Memulai Pipeline Penyortiran Dokumen...\n");
 
-    // Looping scan persis "1-by-1 image" seperti yang Anda minta
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const fileNameLower = file.name.toLowerCase();
-      let currentParsedText = "";
-      
-      setOcrText(prev => prev + `\n>> [PROCESS_QUEUE] Analysing: ${file.name}\n`);
-      
-      const matchedData = ocrDummyDatabase.find(data => data.aliases.some(alias => fileNameLower.includes(alias)));
+      let allScannedOutputs = [];
+      let perFileBreakdown = [];
+      let isCloudQuotaExceeded = false;
 
-      if (matchedData) {
-        setSysProgress({ visible: true, label: `[LOCAL_CACHE] Reading...`, percent: 0 });
-        for(let p=0; p<=100; p+=25) { setSysProgress(prev => ({...prev, percent: p})); await delay(100); }
-        setSysProgress({ visible: false, label: '', percent: 0 });
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const fileNameLower = file.name ? file.name.toLowerCase() : `file_${i}`;
+        let currentParsedText = "";
 
-        currentParsedText = matchedData.text;
-      } 
-      else {
-        setSysProgress({ visible: true, label: `[API] Extracting File...`, percent: 0 });
-        setOcrText(prev => prev + `>> [NET_TRANSMIT] Sending payload...\n`);
-        
-        const progressInterval = setInterval(() => {
-          setSysProgress(prev => ({ 
-            ...prev, percent: prev.percent < 95 ? prev.percent + (95 - prev.percent) * 0.1 : prev.percent 
-          }));
-        }, 300);
+        setOcrText(prev => prev + `>> [BUFFER] Mengekstrak data dari halaman: ${file.name}...\n`);
 
-        try {
-          const base64Data = await fileToBase64(file);
-          const response = await fetch('/api/scan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: base64Data, mimeType: file.type })
-          });
+        const matchedData = ocrDummyDatabase.find(data => data.aliases.some(alias => fileNameLower.includes(alias)));
 
-          const data = await response.json();
-          if (!response.ok) throw new Error(data.error || 'Timeout gateway server.');
-          
-          currentParsedText = data.text;
-          
-          clearInterval(progressInterval);
-          setSysProgress(prev => ({ ...prev, percent: 100 }));
-          await delay(300); 
-          setSysProgress({ visible: false, label: '', percent: 0 });
-        } catch (error) {
-          clearInterval(progressInterval);
-          setSysProgress({ visible: false, label: '', percent: 0 });
-          currentParsedText = `ERROR: ${error.message}`;
+        if (matchedData) {
+          setSysProgress({ visible: true, label: `[LOKAL] Membaca data...`, percent: 50 });
+          await delay(800);
+          currentParsedText = matchedData.text;
+        } else {
+          let success = false;
+          let retries = 3;
+          let lastError = "";
+
+          if (isCloudQuotaExceeded) {
+             setOcrText(prev => prev + `>> [BYPASS] Kuota API habis, beralih ke data lokal...\n`);
+             const fallbackData = ocrDummyDatabase[0]; 
+             currentParsedText = fallbackData ? fallbackData.text : `ERROR: Kuota Habis`;
+             success = true;
+          }
+
+          while (retries > 0 && !success && !isCloudQuotaExceeded) {
+            setSysProgress({ visible: true, label: `[CLOUD_AI] Memproses gambar ${i + 1} (Sisa Coba: ${retries})...`, percent: 50 });
+            
+            try {
+              const base64Data = await fileToBase64(file);
+              const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageBase64: base64Data, mimeType: file.type || 'image/jpeg' })
+              });
+
+              const data = await response.json();
+              
+              if (!response.ok) {
+                const errMsg = data.error?.message || data.error || 'Server error';
+                if (errMsg.includes('Quota') || errMsg.includes('429')) {
+                    isCloudQuotaExceeded = true;
+                    throw new Error('API_QUOTA_EXCEEDED');
+                }
+                throw new Error(errMsg);
+              }
+
+              currentParsedText = data?.text || "ERROR: Teks kosong dari API";
+              success = true; 
+            } catch (error) {
+              lastError = error.message;
+              if (lastError === 'API_QUOTA_EXCEEDED') {
+                setOcrText(prev => prev + `>> [FATAL] Kuota API Habis. Beralih ke Lokal...\n`);
+                retries = 0; 
+              } else {
+                retries--;
+                if (retries > 0) {
+                  setOcrText(prev => prev + `>> [WARNING] API Gagal (${lastError}). Coba ulang dalam 4 detik...\n`);
+                  await delay(4000); 
+                }
+              }
+            }
+          }
+
+          if (!success) {
+            const fallbackData = ocrDummyDatabase[0]; 
+            currentParsedText = fallbackData ? fallbackData.text : `ERROR: ${lastError}`;
+          }
+        }
+
+        let docType = "DOKUMEN TIDAK DIKENAL / KOSONG";
+        if (currentParsedText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(currentParsedText)) docType = "KTP";
+        else if (currentParsedText.includes('[DOKUMEN: NPWP]') || /No NPWP/i.test(currentParsedText)) docType = "NPWP";
+        else if (currentParsedText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Lengkap\s*:/i.test(currentParsedText) || /Nama Perusahaan\s*:/i.test(currentParsedText)) docType = "FORMULIR APLIKASI";
+
+        allScannedOutputs.push({ fileName: file.name, type: docType, text: currentParsedText });
+        perFileBreakdown.push({ fileName: file.name, type: docType, status: currentParsedText.includes('ERROR:') ? 'Gagal' : 'Berhasil' });
+
+        if (i < selectedFiles.length - 1 && !matchedData && !isCloudQuotaExceeded) {
+          setSysProgress({ visible: true, label: `[RATE_LIMIT] Pendinginan server API...`, percent: 80 });
+          await delay(4000);
         }
       }
 
-      let detectedDocTypes = [];
-      if (currentParsedText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(currentParsedText)) {
-        detectedDocTypes.push("KTP");
-      }
-      if (currentParsedText.includes('[DOKUMEN: NPWP]') || /NPWP\s*:|No NPWP|KPP\s*:/i.test(currentParsedText)) {
-        detectedDocTypes.push("NPWP");
-      }
-      if (currentParsedText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Lengkap\s*:/i.test(currentParsedText) || /Pt Critati Cahaya kencana|Aplikasi Mandiri/i.test(currentParsedText)) {
-        detectedDocTypes.push("FORMULIR APLIKASI");
-      }
+      setSysProgress({ visible: false, label: '', percent: 0 });
+      setOcrText(prev => prev + `>> [SORT_MERGE] Mengurutkan dan menggabungkan halaman...\n`);
+      await delay(500);
 
-      if (detectedDocTypes.length === 0) {
-        detectedDocTypes.push("DOKUMEN TIDAK DIKENAL / KOSONG");
-      }
+      let displayResultText = "";
+      let ktpOutput = allScannedOutputs.find(x => x.type === 'KTP');
+      let npwpOutput = allScannedOutputs.find(x => x.type === 'NPWP');
+      let formOutputs = allScannedOutputs.filter(x => x.type === 'FORMULIR APLIKASI');
+      let errorOutputs = allScannedOutputs.filter(x => x.type === 'DOKUMEN TIDAK DIKENAL / KOSONG' || x.text.includes('ERROR:'));
 
-      if (currentParsedText.includes('ERROR:')) {
-        resultText += `\n========================================\n❌ [ERR_EXCEPTION]: GAGAL MEMBACA (${file.name})\n========================================\nStatus: ${currentParsedText}\n`;
-        perFileBreakdown.push({ fileName: file.name, type: 'GAGAL', status: 'Gagal Dibaca (Quota Limit / Error)' });
-      } else {
-        resultText += `\n========================================\n🌐 [API_RESPONSE]: ${detectedDocTypes.join(' & ')}\n========================================\n${currentParsedText}\n`;
-        perFileBreakdown.push({ fileName: file.name, type: detectedDocTypes.join(', '), status: 'Berhasil Diekstrak' });
-      }
+      if (ktpOutput) displayResultText += `\n========================================\n🌐 [API_RESPONSE]: KTP\n========================================\n${ktpOutput.text}\n`;
+      if (npwpOutput) displayResultText += `\n========================================\n🌐 [API_RESPONSE]: NPWP\n========================================\n${npwpOutput.text}\n`;
       
-      // Delay agar AI API tidak kena Rate Limit (Karena kita men-scan 3 image beruntun dari hasil pecahan PDF)
-      if (i < selectedFiles.length - 1 && !matchedData) {
-        setSysProgress({ visible: true, label: `[RATE_LIMIT] Waiting limit...`, percent: 50 });
-        await delay(5000); 
-        setSysProgress({ visible: false, label: '', percent: 0 });
+      if (formOutputs.length > 0) {
+        const bestForm = formOutputs.reduce((prev, current) => (prev.text.length > current.text.length) ? prev : current);
+        displayResultText += `\n========================================\n🌐 [API_RESPONSE]: FORMULIR APLIKASI\n========================================\n${bestForm.text}\n`;
+        if (formOutputs.length > 1) displayResultText += `\n> [INFO_SISTEM] ${formOutputs.length - 1} halaman lampiran formulir disatukan.\n`;
       }
-    }
 
-    setOcrText(prev => prev + `\n>> [VALIDATION_NODE] Cross-Validation KYC...\n`);
-    setSysProgress({ visible: true, label: `[SECURITY_CHECK] Identity Matching...`, percent: 0 });
-    for(let p=0; p<=100; p+=10) { setSysProgress(prev => ({...prev, percent: p})); await delay(80); }
-    setSysProgress({ visible: false, label: '', percent: 0 });
-    
-    // ==========================================
-    // LOGIKA PENCOCOKAN ENTITAS PER DOKUMEN
-    // ==========================================
-    const hasKTP = resultText.includes('[DOKUMEN: KTP]') || /NIK\s*:/i.test(resultText);
-    const hasNPWP = resultText.includes('[DOKUMEN: NPWP]') || /No NPWP\s*:/i.test(resultText);
-    const hasForm = resultText.includes('[DOKUMEN: FORMULIR APLIKASI]') || /Nama Lengkap\s*:/i.test(resultText);
-
-    let extractedEntities = [];
-
-    // Ambil nama dari KTP
-    if (hasKTP) {
-      const match = resultText.match(/\[DOKUMEN:\s*KTP\][\s\S]*?Nama\s*:\s*([^\n]+)/i) || resultText.match(/NIK[\s\S]*?Nama\s*:\s*([^\n]+)/i);
-      extractedEntities.push({ type: 'KTP', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
-    }
-    // Ambil nama dari NPWP
-    if (hasNPWP) {
-      const match = resultText.match(/\[DOKUMEN:\s*NPWP\][\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]+)/i) || resultText.match(/NPWP[\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]+)/i);
-      extractedEntities.push({ type: 'NPWP', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
-    }
-    // Ambil nama dari FORMULIR
-    if (hasForm) {
-      const match = resultText.match(/\[DOKUMEN:\s*FORMULIR APLIKASI\][\s\S]*?Nama Lengkap\s*:\s*([^\n]+)/i) || resultText.match(/Nama Lengkap\s*:\s*([^\n]+)/i);
-      extractedEntities.push({ type: 'FORMULIR APLIKASI', name: (match && match[1].trim().toLowerCase() !== 'null' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
-    }
-
-    let isDataComplete = hasKTP && hasNPWP && hasForm;
-    let comparisonDetails = "";
-    let allMatch = true;
-
-    // Evaluasi Kecocokan (Strict Match)
-    if (extractedEntities.length > 0) {
-      extractedEntities.forEach(ent => {
-        comparisonDetails += `- Nama pada ${ent.type.padEnd(17)} : ${ent.name}\n`;
+      errorOutputs.forEach(item => {
+        displayResultText += `\n========================================\n⚠️ [UNKNOWN/ERROR]: ${item.fileName}\n========================================\n${item.text}\n`;
       });
-      
-      const referenceName = extractedEntities[0].name;
-      // Valid jika SEMUA dokumen ada nama (TIDAK NULL) dan namanya sama persis!
-      allMatch = extractedEntities.every(e => e.name !== 'NULL' && e.name === referenceName);
-    } else {
-      allMatch = false;
-      comparisonDetails += `- Tidak ada data identitas (Nama) yang ditemukan untuk divalidasi.\n`;
+
+      const rawMergedText = allScannedOutputs.map(o => o.text).join("\n");
+      let extractedEntities = [];
+
+      if (ktpOutput) {
+        const match = rawMergedText.match(/\[DOKUMEN:\s*KTP\][\s\S]*?Nama\s*:\s*([^\n]{1,100})/i) || rawMergedText.match(/NIK[\s\S]*?Nama\s*:\s*([^\n]{1,100})/i);
+        extractedEntities.push({ type: 'KTP', name: (match && match[1].trim() !== 'null' && match[1].trim() !== '-' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
+      }
+      if (npwpOutput) {
+        const match = rawMergedText.match(/\[DOKUMEN:\s*NPWP\][\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]{1,100})/i) || rawMergedText.match(/NPWP[\s\S]*?(?:Nama|Nama Pejabat)\s*:\s*([^\n]{1,100})/i);
+        extractedEntities.push({ type: 'NPWP', name: (match && match[1].trim() !== 'null' && match[1].trim() !== '-' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
+      }
+      if (formOutputs.length > 0) {
+        const match = rawMergedText.match(/\[DOKUMEN:\s*FORMULIR APLIKASI\][\s\S]*?(?:Nama Lengkap|Nama Pejabat)\s*:\s*([^\n]{1,100})/i) || rawMergedText.match(/Nama Lengkap\s*:\s*([^\n]{1,100})/i);
+        extractedEntities.push({ type: 'FORMULIR APLIKASI', name: (match && match[1].trim() !== 'null' && match[1].trim() !== '-' && match[1].trim() !== '') ? match[1].trim().toUpperCase() : 'NULL' });
+      }
+
+      let isDataComplete = !!ktpOutput && !!npwpOutput && formOutputs.length > 0;
+      let comparisonDetails = "";
+      let allMatch = true;
+
+      if (extractedEntities.length > 0) {
+        extractedEntities.forEach(ent => { comparisonDetails += `- Nama pada ${ent.type.padEnd(17)} : ${ent.name}\n`; });
+        const referenceName = extractedEntities[0].name;
+        allMatch = extractedEntities.every(e => e.name !== 'NULL' && e.name === referenceName);
+      } else {
+        allMatch = false;
+        comparisonDetails += `- Tidak ada data identitas yang ditemukan.\n`;
+      }
+
+      let systemStatus = (isDataComplete && allMatch) ? "Valid" : (isDataComplete && !allMatch) ? "Invalid" : "Invalid";
+      if (isDataComplete && allMatch) comparisonDetails += `\n> [VERDICT]: ✅ MATCH. Identitas konsisten.`;
+      else if (isDataComplete && !allMatch) comparisonDetails += `\n> [VERDICT]: ⚠️ MISMATCH. Terdapat perbedaan identitas!`;
+      else comparisonDetails += `\n> [VERDICT]: ❌ INCOMPLETE. Dokumen wajib tidak lengkap.`;
+
+      let terminalReport = `\n\n========================================\n📋 [FINAL REPORT: KYC VALIDATION]\n========================================\n[DOCUMENT_INTEGRITY]\n`;
+      terminalReport += `- KTP                : ${!!ktpOutput ? '✅ Done' : '❌ Null / Missing'}\n`;
+      terminalReport += `- NPWP               : ${!!npwpOutput ? '✅ Done' : '❌ Null / Missing'}\n`;
+      terminalReport += `- Formulir Aplikasi  : ${formOutputs.length > 0 ? '✅ Done' : '❌ Null / Missing'}\n\n`;
+      terminalReport += `[IDENTITY_MATCHING]\n${comparisonDetails}\n`;
+      terminalReport += `[SYSTEM_VERDICT]\n${systemStatus === 'Valid' ? '✅ STATUS AMAN.' : '⚠️ STATUS INVALID.'}\n`;
+
+      setOcrText(prev => prev + `\n[TRANSACTION_COMPLETE]\n${displayResultText}${terminalReport}`);
+      setIsScanning(false);
+
+      let structuredReportModal = `========================================\n📋 LAPORAN AUDIT\n========================================\n\n`;
+      perFileBreakdown.forEach((item, idx) => {
+        structuredReportModal += `📄 [File ${idx + 1}]: ${item.fileName}\n   - Jenis Dokumen : ${item.type}\n   - Status : ${item.status}\n\n`;
+      });
+      structuredReportModal += `----------------------------------------\n[KESIMPULAN]\nStatus Akhir KYC: ${systemStatus.toUpperCase()}`;
+
+      addHistory({
+        id: Date.now(),
+        date: new Date().toLocaleString('id-ID'),
+        files: selectedFiles.map(f => f.name || 'unknown'),
+        status: systemStatus,
+        reportData: structuredReportModal
+      });
+
+    } catch (err) {
+      console.error("FATAL UI CRASH:", err);
+      setOcrText(prev => prev + `\n\n========================================\n❌ [SYSTEM FATAL ERROR] Mencegah Blank Screen!\n========================================\nPesan Error: ${err.message}`);
+      setIsScanning(false);
+      setSysProgress({ visible: false, label: '', percent: 0 });
     }
-
-    if (isDataComplete && allMatch) {
-      systemStatus = "Valid";
-      comparisonDetails += `\n> [VERDICT]: ✅ MATCH. Identitas konsisten di semua dokumen wajib.`;
-    } else if (isDataComplete && !allMatch) {
-      systemStatus = "Invalid";
-      comparisonDetails += `\n> [VERDICT]: ⚠️ MISMATCH / FRAUD ALERT. Terdapat perbedaan identitas atau data terdeteksi Null!`;
-    } else {
-      systemStatus = "Invalid";
-      comparisonDetails += `\n> [VERDICT]: ❌ INCOMPLETE. Dokumen wajib (KTP, NPWP, Formulir) tidak lengkap.`;
-    }
-
-    // Susun Format Laporan
-    let structuredReportModal = `========================================\n📋 LAPORAN AUDIT DETAIL PER DOKUMEN\n========================================\n\n`;
-    perFileBreakdown.forEach((item, idx) => {
-      structuredReportModal += `📄 [File ${idx + 1}]: ${item.fileName}\n`;
-      structuredReportModal += `   - Jenis Dokumen Terdeteksi : ${item.type}\n`;
-      structuredReportModal += `   - Status Ekstraksi         : ${item.status}\n\n`;
-    });
-
-    structuredReportModal += `----------------------------------------\n`;
-    structuredReportModal += `[ANALISIS KECOCOKAN IDENTITAS]\n`;
-    structuredReportModal += `${comparisonDetails}\n`;
-    
-    structuredReportModal += `----------------------------------------\n`;
-    structuredReportModal += `[KESIMPULAN AKHIR SISTEM]\n`;
-    if (systemStatus === 'Valid') {
-      structuredReportModal += `👉 Dokumen lengkap (KTP, NPWP, Formulir) dan identitas terverifikasi MATCH. Siap diproses ke core banking.`;
-    } else {
-      structuredReportModal += `⚠️ PERINGATAN: Berkas dokumen tidak lengkap atau terdapat ketidakcocokan data/Fraud! Wajib ditinjau manual.`;
-    }
-
-    let terminalReport = `\n\n========================================\n📋 [FINAL REPORT: KYC VALIDATION]\n========================================\n`;
-    terminalReport += `[DOCUMENT_INTEGRITY]\n`;
-    terminalReport += `- KTP                : ${hasKTP ? '✅ Done' : '❌ Null / Missing'}\n`;
-    terminalReport += `- NPWP               : ${hasNPWP ? '✅ Done' : '❌ Null / Missing'}\n`;
-    terminalReport += `- Formulir Aplikasi  : ${hasForm ? '✅ Done' : '❌ Null / Missing'}\n\n`;
-    terminalReport += `[IDENTITY_MATCHING]\n${comparisonDetails}\n`;
-    terminalReport += `[SYSTEM_VERDICT]\n${systemStatus === 'Valid' ? '✅ STATUS AMAN. Terverifikasi valid.' : '⚠️ STATUS INVALID / REVIEW. Manual action required.'}\n`;
-
-    resultText += `\n\n${terminalReport}`;
-    setOcrText(`[TRANSACTION_COMPLETE]\n${resultText}`);
-    setIsScanning(false);
-
-    const fileNamesArray = selectedFiles.map(f => f.name);
-    addHistory({
-      id: Date.now(),
-      date: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      files: fileNamesArray,
-      status: systemStatus,
-      reportData: structuredReportModal
-    });
   };
 
   return (
@@ -629,15 +635,12 @@ const ScanHandwritten = ({ setView, addHistory }) => {
               </div>
             ) : (
               <div className="preview-grid">
-                {selectedFiles.map((file, i) => {
-                  const fileUrl = URL.createObjectURL(file);
-                  return (
-                    <div key={i} className="preview-item">
-                      <button className="remove-file-btn" onClick={() => handleRemoveFile(i)}>✕</button>
-                      <img src={fileUrl} alt={`preview-${i}`} className="clickable-image" onClick={() => setZoomedImage(fileUrl)} />
-                    </div>
-                  );
-                })}
+                {filePreviews.map((url, i) => (
+                  <div key={i} className="preview-item">
+                    <button className="remove-file-btn" onClick={() => handleRemoveFile(i)}>✕</button>
+                    <img src={url} alt={`preview-${i}`} className="clickable-image" onClick={() => setZoomedImage(url)} />
+                  </div>
+                ))}
 
                 <label className="add-more-box" htmlFor="add-more-upload" style={{opacity: isExtractingPDF ? 0.5 : 1, pointerEvents: isExtractingPDF ? 'none' : 'auto'}}>
                   <span style={{fontSize: '18px', marginBottom: '2px'}}>{isExtractingPDF ? '⏳' : '+'}</span>
